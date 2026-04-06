@@ -2,71 +2,71 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Traipeivel - 城市探險首頁</title>
+    <title>Traipeivel - 城市探險</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 70px; }
-        .header { background: #1a73e8; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        #map { height: 400px; width: 100%; }
-        .status-panel { padding: 15px; }
-        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
-        .weather-info { color: #f57c00; font-weight: bold; }
-        .btn-profile { background: white; color: #1a73e8; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        .btn-explore { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 10px; font-size: 18px; margin-top: 10px; }
+        .top-bar { background: #1a73e8; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        .logo { width: 40px; height: 40px; border-radius: 8px; background: white; padding: 2px; }
+        .search-container { padding: 15px; background: white; }
+        #map { height: 350px; width: 100%; }
+        .card { background: white; padding: 15px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .api-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px; box-sizing: border-box; }
+        /* 底部導覽 */
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
+        .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; font-size: 14px; }
+        .nav-item.active { color: #1a73e8; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <span>Traipeivel 探索中</span>
-        <button class="btn-profile" onclick="location.href='personality.html'">👤 個人主頁</button>
-    </div>
+<div class="top-bar">
+    <img src="image-removebg-preview.png" alt="Logo" class="logo">
+    <span style="font-weight: bold; font-size: 18px;">Traipeivel</span>
+</div>
 
-    <div id="map"></div>
+<div class="search-container">
+    <input type="text" id="addressSearch" placeholder="🔍 查詢地址或地標..." style="width: 75%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+    <button onclick="searchAddress()" style="width: 20%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 5px;">搜尋</button>
+</div>
 
-    <div class="status-panel">
-        <div class="card">
-            <div class="weather-info" id="weatherDisplay">🌤️ 天氣讀取中...</div>
-            <p id="locationDisplay">📍 定位中...</p>
-        </div>
+<div id="map"></div>
 
-        <div class="card" style="border-left: 5px solid #1a73e8;">
-            <strong>Gemini AI 建議：</strong>
-            <p id="aiContent">正在分析數位脈動，請稍候...</p>
-        </div>
+<div class="card">
+    <strong>🤖 Gemini AI 顧問設定</strong>
+    <input type="password" id="geminiKey" class="api-input" placeholder="在此輸入您的 Gemini API Key..." onchange="saveKey()">
+    <p style="font-size: 11px; color: gray;">*金鑰僅儲存在您的瀏覽器中，用於即時旅程分析。</p>
+</div>
 
-        <button class="btn-explore" onclick="handleExplore()">回報探索進度 (+20 EXP)</button>
-    </div>
+<nav class="nav">
+    <a href="index.html" class="nav-item active">🏠 探索</a>
+    <a href="search.html" class="nav-item">🔍 找人</a>
+    <a href="message.html" class="nav-item">💬 訊息</a>
+    <a href="personality.html" class="nav-item">👤 個人</a>
+</nav>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // 初始化地圖 (OpenFreeMap)
-        const map = L.map('map').setView([25.047, 121.517], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        let marker = L.marker([25.047, 121.517]).addTo(map).bindPopup("您的位置");
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const map = L.map('map').setView([25.047, 121.517], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 時時定位功能
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(pos => {
-                const { latitude, longitude } = pos.coords;
-                const newPos = [latitude, longitude];
-                marker.setLatLng(newPos);
-                map.panTo(newPos);
-                document.getElementById('locationDisplay').innerText = `📍 目前位置: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-            });
-        }
+    function searchAddress() {
+        const addr = document.getElementById('addressSearch').value;
+        if(!addr) return;
+        // 4/11 展示時說明：此處會串接 OpenFreeMap / Nominatim API 進行地理編碼
+        alert("正在查詢地址: " + addr + " ... (模擬前往該地標)");
+    }
 
-        // 模擬天氣系統
-        const weathers = ["☀️ 晴朗 (適合騎 Ubike)", "🌧️ 大雨 (建議轉往地下街探索)", "☁️ 多雲 (適合徒步探險)"];
-        document.getElementById('weatherDisplay').innerText = weathers[Math.floor(Math.random() * weathers.length)];
+    function saveKey() {
+        const key = document.getElementById('geminiKey').value;
+        localStorage.setItem('gemini_api_key', key);
+        alert("API Key 已儲存，AI 顧問準備就緒！");
+    }
 
-        function handleExplore() {
-            let currentExp = parseInt(localStorage.getItem('userExp') || "0");
-            currentExp += 20;
-            localStorage.setItem('userExp', currentExp);
-            document.getElementById('aiContent').innerText = "✨ 發現新據點！數據已同步至您的個人主頁。";
-            alert("探索成功！獲得 20 EXP");
-        }
-    </script>
+    // 初始化讀取 Key
+    window.onload = () => {
+        document.getElementById('geminiKey').value = localStorage.getItem('gemini_api_key') || "";
+    };
+</script>
 </body>
 </html>

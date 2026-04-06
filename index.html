@@ -2,67 +2,70 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traipeivel - 城市探險</title>
+    <title>Traipeivel - 城市探險首頁</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h1 { color: #1a73e8; font-size: 24px; }
-        .exp-bar { background: #eee; height: 20px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-        .exp-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.3s; }
-        .ai-box { background: #e8f0fe; border-left: 4px solid #1a73e8; padding: 10px; margin-top: 20px; min-height: 50px; }
-        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px; }
-        button:active { background: #1557b0; }
+        body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 70px; }
+        .header { background: #1a73e8; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        #map { height: 400px; width: 100%; }
+        .status-panel { padding: 15px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        .weather-info { color: #f57c00; font-weight: bold; }
+        .btn-profile { background: white; color: #1a73e8; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .btn-explore { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 10px; font-size: 18px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Traipeivel 城市探險</h1>
-        <p>等級: <span id="level">1</span></p>
-        <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
-        <p>經驗值: <span id="expText">0</span> / 100</p>
 
-        <div class="ai-box" id="aiResponse">✨ 點擊按鈕獲取 AI 建議...</div>
-
-        <button onclick="explore()">探索新據點 (+20 EXP)</button>
-        <p style="font-size: 12px; color: gray; margin-top: 10px; text-align: center;">✨ 本建議由 Gemini AI 輔助生成</p>
+    <div class="header">
+        <span>Traipeivel 探索中</span>
+        <button class="btn-profile" onclick="location.href='personality.html'">👤 個人主頁</button>
     </div>
 
+    <div id="map"></div>
+
+    <div class="status-panel">
+        <div class="card">
+            <div class="weather-info" id="weatherDisplay">🌤️ 天氣讀取中...</div>
+            <p id="locationDisplay">📍 定位中...</p>
+        </div>
+
+        <div class="card" style="border-left: 5px solid #1a73e8;">
+            <strong>Gemini AI 建議：</strong>
+            <p id="aiContent">正在分析數位脈動，請稍候...</p>
+        </div>
+
+        <button class="btn-explore" onclick="handleExplore()">回報探索進度 (+20 EXP)</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let exp = 0;
-        let level = 1;
+        // 初始化地圖 (OpenFreeMap)
+        const map = L.map('map').setView([25.047, 121.517], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        let marker = L.marker([25.047, 121.517]).addTo(map).bindPopup("您的位置");
 
-        function explore() {
-            // 增加經驗值
-            exp += 20;
-            if (exp >= 100) {
-                exp = 0;
-                level++;
-                alert("恭喜升級！目前的等級是: " + level);
-            }
-            updateUI();
-            fetchAIPlan();
+        // 時時定位功能
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(pos => {
+                const { latitude, longitude } = pos.coords;
+                const newPos = [latitude, longitude];
+                marker.setLatLng(newPos);
+                map.panTo(newPos);
+                document.getElementById('locationDisplay').innerText = `📍 目前位置: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+            });
         }
 
-        function updateUI() {
-            document.getElementById('expFill').style.width = exp + "%";
-            document.getElementById('expText').innerText = exp;
-            document.getElementById('level').innerText = level;
-        }
+        // 模擬天氣系統
+        const weathers = ["☀️ 晴朗 (適合騎 Ubike)", "🌧️ 大雨 (建議轉往地下街探索)", "☁️ 多雲 (適合徒步探險)"];
+        document.getElementById('weatherDisplay').innerText = weathers[Math.floor(Math.random() * weathers.length)];
 
-        async function fetchAIPlan() {
-            const aiBox = document.getElementById('aiResponse');
-            aiBox.innerText = "正在感測城市脈動...";
-            
-            // 這裡模擬 AI 回傳，4/11 面談時你可以說明這會串接 Gemini API
-            setTimeout(() => {
-                const recommendations = [
-                    "【即時感知】台北現在天氣晴朗，建議前往『忠孝復興』探索巷弄中的私藏咖啡廳！",
-                    "【數位脈動】TDX 顯示附近 Ubike 車位充足，適合騎往『大安森林公園』享受綠意。",
-                    "【夜間驚喜】發現一處隱藏在西門町的地下黑膠唱片行，快去解鎖！"
-                ];
-                aiBox.innerText = recommendations[Math.floor(Math.random() * recommendations.length)];
-            }, 1000);
+        function handleExplore() {
+            let currentExp = parseInt(localStorage.getItem('userExp') || "0");
+            currentExp += 20;
+            localStorage.setItem('userExp', currentExp);
+            document.getElementById('aiContent').innerText = "✨ 發現新據點！數據已同步至您的個人主頁。";
+            alert("探索成功！獲得 20 EXP");
         }
     </script>
 </body>

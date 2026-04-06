@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traipeivel - 城市探險</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { color: #1a73e8; font-size: 24px; }
+        .exp-bar { background: #eee; height: 20px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .exp-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.3s; }
+        .ai-box { background: #e8f0fe; border-left: 4px solid #1a73e8; padding: 10px; margin-top: 20px; min-height: 50px; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        button:active { background: #1557b0; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Traipeivel 城市探險</h1>
+        <p>等級: <span id="level">1</span></p>
+        <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
+        <p>經驗值: <span id="expText">0</span> / 100</p>
+
+        <div class="ai-box" id="aiResponse">✨ 點擊按鈕獲取 AI 建議...</div>
+
+        <button onclick="explore()">探索新據點 (+20 EXP)</button>
+        <p style="font-size: 12px; color: gray; margin-top: 10px; text-align: center;">✨ 本建議由 Gemini AI 輔助生成</p>
+    </div>
+
+    <script>
+        let exp = 0;
+        let level = 1;
+
+        function explore() {
+            // 增加經驗值
+            exp += 20;
+            if (exp >= 100) {
+                exp = 0;
+                level++;
+                alert("恭喜升級！目前的等級是: " + level);
+            }
+            updateUI();
+            fetchAIPlan();
+        }
+
+        function updateUI() {
+            document.getElementById('expFill').style.width = exp + "%";
+            document.getElementById('expText').innerText = exp;
+            document.getElementById('level').innerText = level;
+        }
+
+        async function fetchAIPlan() {
+            const aiBox = document.getElementById('aiResponse');
+            aiBox.innerText = "正在感測城市脈動...";
+            
+            // 這裡模擬 AI 回傳，4/11 面談時你可以說明這會串接 Gemini API
+            setTimeout(() => {
+                const recommendations = [
+                    "【即時感知】台北現在天氣晴朗，建議前往『忠孝復興』探索巷弄中的私藏咖啡廳！",
+                    "【數位脈動】TDX 顯示附近 Ubike 車位充足，適合騎往『大安森林公園』享受綠意。",
+                    "【夜間驚喜】發現一處隱藏在西門町的地下黑膠唱片行，快去解鎖！"
+                ];
+                aiBox.innerText = recommendations[Math.floor(Math.random() * recommendations.length)];
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

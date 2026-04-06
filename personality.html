@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>個人主頁 - Traipeivel</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+        .profile-card { background: white; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .avatar { width: 100px; height: 100px; background: #1a73e8; border-radius: 50%; margin: 0 auto 15px; line-height: 100px; color: white; font-size: 40px; }
+        .exp-container { margin: 20px 0; text-align: left; }
+        .exp-bar { background: #eee; height: 20px; border-radius: 10px; overflow: hidden; }
+        .exp-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.5s; }
+        .back-btn { margin-top: 20px; display: inline-block; color: #1a73e8; text-decoration: none; font-weight: bold; }
+        .achievement-list { text-align: left; margin-top: 20px; padding: 0; list-style: none; }
+        .achievement-list li { background: #e8f0fe; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="profile-card">
+        <div class="avatar">神</div>
+        <h2>神風特攻隊</h2>
+        <p>等級：<span id="displayLvl">1</span> (台北探險家)</p>
+
+        <div class="exp-container">
+            <p>經驗值進度：<span id="displayExp">0</span> / 100</p>
+            <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
+        </div>
+
+        <h3>數位脈動成就</h3>
+        <ul class="achievement-list">
+            <li>✅ 成功串接 OpenFreeMap 定位系統</li>
+            <li>✅ 啟動動態天氣感知引擎</li>
+            <li>✅ 串接 Gemini AI 建議邏輯</li>
+        </ul>
+
+        <a href="index.html" class="back-btn">⬅️ 返回探險地圖</a>
+    </div>
+
+    <script>
+        // 讀取 localStorage 保持資料同步
+        window.onload = function() {
+            let exp = parseInt(localStorage.getItem('userExp') || "0");
+            let level = Math.floor(exp / 100) + 1;
+            let currentLevelExp = exp % 100;
+
+            document.getElementById('displayLvl').innerText = level;
+            document.getElementById('displayExp').innerText = currentLevelExp;
+            document.getElementById('expFill').style.width = currentLevelExp + "%";
+        };
+    </script>
+</body>
+</html>

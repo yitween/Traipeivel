@@ -19,6 +19,60 @@
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 2000;}
         .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; font-size: 14px; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
+
+        .ai-assistant-section {
+            background: white;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-bubble-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .ai-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #1a73e8;
+            object-fit: cover;
+        }
+        .chat-bubble {
+            background: #e8f0fe;
+            padding: 12px;
+            border-radius: 15px;
+            border-top-left-radius: 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            flex: 1;
+            position: relative;
+        }
+        .user-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        #userInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        .send-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +97,20 @@
 <div class="card" style="border-left: 5px solid var(--primary);">
     <strong>🤖 Gemini AI 顧問</strong>
     <p id="aiAdvice" style="font-size: 14px; margin-top: 5px;">偵測到板南線人潮較多，建議改搭公車前往目的地以賺取更多 EXP！</p>
+</div>
+
+<div class="ai-assistant-section">
+    <div class="chat-bubble-container">
+        <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="ai-avatar" alt="AI Agent">
+        <div class="chat-bubble" id="aiResponse">
+            您好！我是您的城市探險顧問。台北今天的數位脈動非常活絡，想去哪裡冒險呢？
+        </div>
+    </div>
+    
+    <div class="user-input-group">
+        <input type="text" id="userInput" placeholder="問問 AI 顧問...">
+        <button class="send-btn" onclick="askGemini()">發送</button>
+    </div>
 </div>
 
 <nav class="nav">
@@ -126,6 +194,36 @@
             iconSize: [30, 30],
             iconAnchor: [15, 15]
         });
+    }
+
+    // 💡 直接使用你的 API KEY (請將下方替換為你的真實 KEY)
+    const MY_GEMINI_API_KEY = "你的_GEMINI_API_KEY_在這邊"; 
+
+    async function askGemini() {
+        const input = document.getElementById('userInput').value;
+        const responseBox = document.getElementById('aiResponse');
+        if (!input) return;
+
+        responseBox.innerText = "正在分析城市數據與天氣中...";
+        
+        try {
+            // 這裡模擬呼叫 Gemini API 的邏輯
+            // 實際開發時，你會使用 fetch 呼叫 https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
+            
+            // 4/11 展示用的模擬回覆語氣
+            setTimeout(() => {
+                const mockReplies = [
+                    `主人，根據即時 TDX 數據，目前捷運站人潮較多，建議您前往大安森林公園享受微風，還能獲得 30 EXP 喔！`,
+                    `感測到您附近有不錯的咖啡廳，那裡的數位脈動訊號非常穩定，適合稍作休息。`,
+                    `現在天氣轉涼了，我已為您在地圖上標註了附近的溫泉景點，要去看看嗎？`
+                ];
+                responseBox.innerText = mockReplies[Math.floor(Math.random() * mockReplies.length)];
+                document.getElementById('userInput').value = "";
+            }, 1500);
+
+        } catch (error) {
+            responseBox.innerText = "抱歉，通訊感測器似乎受到干擾，請稍後再試。";
+        }
     }
 </script>
 </body>

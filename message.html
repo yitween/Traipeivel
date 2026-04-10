@@ -2,98 +2,161 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>通訊頻道 - Traipeivel</title>
     <style>
-        body { background: white; margin: 0; padding-top: 50px; padding-bottom: 140px; }
-        .ig-nav { position: fixed; top: 0; width: 100%; height: 50px; background: white; border-bottom: 1px solid #efefef; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 100; font-weight: bold; }
-        
-        /* Stories */
-        .story-bar { display: flex; padding: 15px; gap: 12px; overflow-x: scroll; -webkit-overflow-scrolling: touch; }
-        .story-item { flex-shrink: 0; text-align: center; width: 65px; }
-        .ring { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); padding: 2px; margin-bottom: 5px; }
-        .ring img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid white; object-fit: cover; }
-        
-        /* Chat Bubble */
-        .chat-container { padding: 10px 15px; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { padding: 10px 16px; border-radius: 22px; font-size: 15px; max-width: 75%; line-height: 1.4; }
-        .received { background: #EFEFEF; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .sent { background: #3797F0; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        
-        /* Input */
-        .ig-input-fixed { position: fixed; bottom: 80px; width: 100%; padding: 10px; background: white; box-sizing: border-box; }
-        .pill-input { background: white; border: 1px solid #dbdbdb; border-radius: 30px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+        :root {
+            --ig-blue: #3797F0;
+            --ig-gray: #EFEFEF;
+            --ig-border: #DBDBDB;
+            --nav-text: #666;
+        }
 
+        body { 
+            background: white; 
+            margin: 0; 
+            padding-top: 50px; 
+            padding-bottom: 140px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* 1. 頂部導航欄 (Instagram 風格) */
+        .ig-nav { 
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            height: 50px; 
+            background: white; 
+            border-bottom: 1px solid var(--ig-border); 
+            display: flex; 
+            align-items: center; 
+            padding: 0 15px; 
+            box-sizing: border-box; 
+            z-index: 1000; 
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* 2. 限時動態區 (Stories) */
+        .story-bar { 
+            display: flex; 
+            padding: 15px; 
+            gap: 12px; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            border-bottom: 1px solid var(--ig-border);
+        }
+        .story-bar::-webkit-scrollbar { display: none; } /* 隱藏捲軸 */
         
-        body { background: white; margin: 0; }
-        .ig-header { border-bottom: 1px solid #dbdbdb; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
-        .stories { display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid #dbdbdb; overflow-x: auto; }
-        .story { text-align: center; font-size: 11px; }
-        .story-ring { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #E1306C; padding: 2px; margin-bottom: 4px; }
-        .chat-list { padding: 15px; }
-        .msg-ig { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 15px; }
-        .msg-ig.me { flex-direction: row-reverse; }
-        .bubble-ig { padding: 8px 15px; border-radius: 20px; font-size: 14px; max-width: 70%; }
-        .other-bubble { border: 1px solid #dbdbdb; }
-        .me-bubble { background: #3797F0; color: white; }
-        .ig-input { position: fixed; bottom: 70px; width: 90%; margin: 5%; background: white; border: 1px solid #dbdbdb; border-radius: 30px; padding: 10px 20px; display: flex; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        .chat-header { background: #1a73e8; color: white; padding: 15px; font-weight: bold; }
-        .chat-content { flex: 1; padding: 15px; overflow-y: auto; }
-        .msg { margin-bottom: 15px; max-width: 80%; padding: 10px; border-radius: 10px; }
-        .msg-other { background: white; align-self: flex-start; }
-        .msg-me { background: #dcf8c6; align-self: flex-end; margin-left: auto; }
-        .input-area { background: white; padding: 10px; display: flex; gap: 10px; border-top: 1px solid #ddd; padding-bottom: 80px;}
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
-        .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; }
+        .story-item { flex-shrink: 0; text-align: center; width: 65px; }
+        .ring { 
+            width: 60px; height: 60px; border-radius: 50%; 
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); 
+            padding: 2px; margin-bottom: 5px; box-sizing: border-box;
+        }
+        .ring img { 
+            width: 100%; height: 100%; border-radius: 50%; 
+            border: 2px solid white; object-fit: cover; background: #eee;
+        }
+        .story-name { font-size: 11px; color: #262626; overflow: hidden; text-overflow: ellipsis; }
+
+        /* 3. 聊天內容區 */
+        .chat-container { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .bubble { 
+            padding: 10px 16px; 
+            border-radius: 22px; 
+            font-size: 15px; 
+            max-width: 75%; 
+            line-height: 1.4; 
+            word-wrap: break-word;
+        }
+        .received { 
+            background: var(--ig-gray); 
+            align-self: flex-start; 
+            border-bottom-left-radius: 4px; 
+            color: #262626;
+        }
+        .sent { 
+            background: var(--ig-blue); 
+            color: white; 
+            align-self: flex-end; 
+            border-bottom-right-radius: 4px; 
+        }
+
+        /* 4. 底部發送輸入框 (藥丸型) */
+        .ig-input-fixed { 
+            position: fixed; 
+            bottom: 70px; 
+            width: 100%; 
+            padding: 10px 15px; 
+            background: white; 
+            box-sizing: border-box; 
+            z-index: 900;
+        }
+        .pill-input { 
+            background: white; 
+            border: 1px solid var(--ig-border); 
+            border-radius: 30px; 
+            padding: 8px 15px; 
+            display: flex; 
+            align-items: center; 
+        }
+        .pill-input input { border: none; outline: none; flex: 1; font-size: 15px; padding: 5px; }
+        .send-btn { color: var(--ig-blue); font-weight: bold; cursor: pointer; margin-left: 10px; }
+
+        /* 5. 通用底部導覽列 */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            display: flex; justify-content: space-around; padding: 12px 0;
+            border-top: 1px solid var(--ig-border); z-index: 1000;
+        }
+        .nav-link { text-decoration: none; color: var(--nav-text); font-size: 12px; text-align: center; }
+        .nav-link.active { color: #1a73e8; font-weight: bold; }
+        .nav-link span { display: block; font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
-    <div class="ig-nav">Traipeivel_Team <span style="margin-left:auto;">📷</span></div>
+
+    <div class="ig-nav">
+        Traipeivel_Team 
+        <span style="margin-left:auto; font-size: 20px;">📷</span>
+    </div>
 
     <div class="story-bar">
-        <div class="story-item"><div class="ring"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png"></div><span style="font-size:11px;">你的冒險</span></div>
-        <div class="story-item"><div class="ring" style="background:#ccc;"><img src=""></div><span style="font-size:11px;">Alan_01</span></div>
-    </div>
-    
-    <div class="chat-container">
-        <div class="bubble received">嘿！你今天在 101 附近抓到的數位脈動是什麼顏色的？</div>
-        <div class="bubble sent">是亮紫色的！AI 說這是稀有數據，我拿到了 50 經驗值！</div>
-        <div class="bubble received">太酷了，我現在也要過去！</div>
-    </div>
-    
-    <div class="ig-input-fixed">
-        <div class="pill-input">
-            <input type="text" placeholder="發送訊息..." style="border:none; outline:none; width:80%;">
-            <span style="color:#3797F0; font-weight:bold;">發送</span>
+        <div class="story-item">
+            <div class="ring"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" alt="Mine"></div>
+            <div class="story-name">你的冒險</div>
+        </div>
+        <div class="story-item">
+            <div class="ring" style="background: #ccc;"><img src="" alt=""></div>
+            <div class="story-name">Alan_01</div>
+        </div>
+        <div class="story-item">
+            <div class="ring" style="background: #ccc;"><img src="" alt=""></div>
+            <div class="story-name">Camilla</div>
         </div>
     </div>
 
-    
-    <div class="ig-header"><span>Traipeivel_Team</span> <span>✏️</span></div>
-    <div class="stories">
-        <div class="story"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="story-ring"><div>你的冒險</div></div>
-        <div class="story"><div class="story-ring" style="background:#ccc;"></div><div>Alan</div></div>
-    </div>
-    
-    <div class="chat-list">
-        <div class="msg-ig"><div class="bubble-ig other-bubble">你要去哪裡練 EXP？</div></div>
-        <div class="msg-ig me"><div class="bubble-ig me-bubble">我正在用 AI 找台北車站的隱藏任務！</div></div>
-    </div>
-    <div class="chat-header">💬 與 Alan 的對話</div>
-    <div class="chat-content">
-        <div class="msg msg-other">嘿！聽說你在 101 附近發現了隱藏據點？</div>
-        <div class="msg msg-me">對啊，Gemini 建議我去那邊的，經驗值超多！</div>
-    </div>
-    <div class="input-area">
-        <input type="text" placeholder="輸入訊息..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px;">
-        <button style="border: none; background: none; font-size: 20px;">🚀</button>
+    <div class="chat-container">
+        <div class="bubble received">嘿！你今天在 101 附近抓到的數位脈動是什麼顏色的？</div>
+        <div class="bubble sent">是亮紫色的！AI 顧問說這是稀有數據，我因此拿到了 50 經驗值！✨</div>
+        <div class="bubble received">太酷了，我現在也要趕過去看看！那邊人多嗎？</div>
+        <div class="bubble sent">目前 TDX 數據顯示人潮適中，你現在出發剛好！</div>
     </div>
 
-    <nav class="nav">
-        <a href="index.html" class="nav-item">🏠 探索</a>
-        <a href="search.html" class="nav-item">🔍 找人</a>
-        <a href="message.html" class="nav-item" style="color: #1a73e8; font-weight: bold;">💬 訊息</a>
-        <a href="personality.html" class="nav-item">👤 個人</a>
+    <div class="ig-input-fixed">
+        <div class="pill-input">
+            <input type="text" placeholder="發送訊息...">
+            <div class="send-btn">發送</div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-link"><span>🏠</span>探索</a>
+        <a href="search.html" class="nav-link"><span>🔍</span>搜尋</a>
+        <a href="message.html" class="nav-link active"><span>💬</span>訊息</a>
+        <a href="personality.html" class="nav-link"><span>👤</span>個人</a>
     </nav>
+
 </body>
 </html>

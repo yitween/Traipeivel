@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>通訊頻道 - Traipeivel</title>
     <style>
+        body { background: white; margin: 0; }
+        .ig-header { border-bottom: 1px solid #dbdbdb; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        .stories { display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid #dbdbdb; overflow-x: auto; }
+        .story { text-align: center; font-size: 11px; }
+        .story-ring { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #E1306C; padding: 2px; margin-bottom: 4px; }
+        .chat-list { padding: 15px; }
+        .msg-ig { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 15px; }
+        .msg-ig.me { flex-direction: row-reverse; }
+        .bubble-ig { padding: 8px 15px; border-radius: 20px; font-size: 14px; max-width: 70%; }
+        .other-bubble { border: 1px solid #dbdbdb; }
+        .me-bubble { background: #3797F0; color: white; }
+        .ig-input { position: fixed; bottom: 70px; width: 90%; margin: 5%; background: white; border: 1px solid #dbdbdb; border-radius: 30px; padding: 10px 20px; display: flex; }
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
         .chat-header { background: #1a73e8; color: white; padding: 15px; font-weight: bold; }
         .chat-content { flex: 1; padding: 15px; overflow-y: auto; }
@@ -16,6 +28,16 @@
     </style>
 </head>
 <body>
+    <div class="ig-header"><span>Traipeivel_Team</span> <span>✏️</span></div>
+    <div class="stories">
+        <div class="story"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="story-ring"><div>你的冒險</div></div>
+        <div class="story"><div class="story-ring" style="background:#ccc;"></div><div>Alan</div></div>
+    </div>
+    
+    <div class="chat-list">
+        <div class="msg-ig"><div class="bubble-ig other-bubble">你要去哪裡練 EXP？</div></div>
+        <div class="msg-ig me"><div class="bubble-ig me-bubble">我正在用 AI 找台北車站的隱藏任務！</div></div>
+    </div>
     <div class="chat-header">💬 與 Alan 的對話</div>
     <div class="chat-content">
         <div class="msg msg-other">嘿！聽說你在 101 附近發現了隱藏據點？</div>

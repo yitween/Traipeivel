@@ -54,56 +54,77 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. 初始化地圖
-    const map = L.map('map').setView([25.047, 121.517], 14);
+    // 1. 初始化地圖與圖層 (延續之前的設定)
+    const map = L.map('map').setView([25.047, 121.517], 15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    // 2. 定義 TDX 資料圖層
-    const mrtMarkers = L.layerGroup();
-    const busMarkers = L.layerGroup();
-
-    // 模擬 TDX 捷運站點數據 (4/11 展示時說明：這是透過 TDX V2 API 獲取的點位)
-    const mrtStations = [
-        { name: "台北車站", pos: [25.047, 121.517], color: "blue" },
-        { name: "中山站", pos: [25.052, 121.520], color: "green" },
-        { name: "西門站", pos: [25.042, 121.508], color: "blue" }
-    ];
-
-    mrtStations.forEach(st => {
-        L.circleMarker(st.pos, { color: st.color, radius: 8, fillOpacity: 0.8 })
-         .bindPopup(`🚇 捷運站: ${st.name}`).addTo(mrtMarkers);
-    });
-    mrtMarkers.addTo(map);
-
-    // 模擬 TDX 即時公車位置 (4/11 展示時說明：這是動態更新的 Bus RealTimeNearStop API)
-    function updateBusPosition() {
-        busMarkers.clearLayers();
-        const busPos = [25.048 + Math.random()*0.01, 121.515 + Math.random()*0.01];
-        L.marker(busPos, {
-            icon: L.divIcon({ html: '🚌', className: 'bus-icon', iconSize: [25, 25] })
-        }).bindPopup("🚌 307路公車 (即時位置)").addTo(busMarkers);
-    }
     
-    function toggleMRT() {
-        if(document.getElementById('mrtLayer').checked) mrtMarkers.addTo(map);
-        else map.removeLayer(mrtMarkers);
-    }
-
-    function toggleBus() {
-        if(document.getElementById('busLayer').checked) {
-            busMarkers.addTo(map);
-            updateBusPosition();
-            setInterval(updateBusPosition, 5000); // 每5秒模擬一次公車移動
+    // 建立一個存放「探索結果」的圖層
+    const exploreLayer = L.layerGroup().addTo(map);
+    let rangeCircle = null; // 用來畫出方圓範圍的圓圈
+    
+    // 2. 模擬周邊資料庫 (4/11 展示時說明：此處未來會串接 Google Places 或 TDX API)
+    const poiDatabase = [
+        { name: "鼎泰豐", type: "restaurant", pos: [25.042, 121.526] },
+        { name: "中正紀念堂", type: "attraction", pos: [25.035, 121.519] },
+        { name: "阜杭豆漿", type: "restaurant", pos: [25.044, 121.525] },
+        { name: "台北車站公車站", type: "transport", pos: [25.048, 121.517] },
+        { name: "捷運善導寺站", type: "transport", pos: [25.044, 121.526] }
+    ];
+    
+    // 3. 監聽地圖點擊事件
+    map.on('click', function(e) {
+        const clickCoords = e.latlng;
+        const radius = 500; // 設定方圓 500 公尺
+    
+        // 清除舊的探索結果
+        exploreLayer.clearLayers();
+        if (rangeCircle) map.removeLayer(rangeCircle);
+    
+        // 畫出視覺化的探測圓圈
+        rangeCircle = L.circle(clickCoords, {
+            radius: radius,
+            color: '#1a73e8',
+            fillColor: '#1a73e8',
+            fillOpacity: 0.15,
+            dashArray: '5, 5'
+        }).addTo(map);
+    
+        // 搜尋方圓內的 POI
+        let foundItems = [];
+        poiDatabase.forEach(poi => {
+            // 使用 Leaflet 內建的 distanceTo 計算距離 (單位：公尺)
+            const distance = clickCoords.distanceTo(L.latLng(poi.pos));
+            
+            if (distance <= radius) {
+                const icon = getIconByType(poi.type);
+                L.marker(poi.pos, { icon: icon })
+                    .bindPopup(`<b>${poi.name}</b><br>距離：約 ${Math.round(distance)} 公尺`)
+                    .addTo(exploreLayer);
+                foundItems.push(poi.name);
+            }
+        });
+    
+        // 更新 AI 顧問的提示
+        if (foundItems.length > 0) {
+            document.getElementById('aiAdvice').innerHTML = 
+                `✨ 探測成功！方圓 ${radius}m 內發現：${foundItems.join(', ')}。<br>建議前往探索以獲得加倍 EXP！`;
         } else {
-            map.removeLayer(busMarkers);
+            document.getElementById('aiAdvice').innerText = "這裡似乎是一片未開發區域，去其他地方點點看吧！";
         }
-    }
-
-    // 3. 定位與天氣 (同前)
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(pos => {
-            const { latitude, longitude } = pos.coords;
-            L.marker([latitude, longitude]).addTo(map).bindPopup("您的位置").openPopup();
+    });
+    
+    // 輔助函數：根據類型提供圖示
+    function getIconByType(type) {
+        let emoji = "📍";
+        if (type === 'restaurant') emoji = "🍴";
+        if (type === 'attraction') emoji = "📸";
+        if (type === 'transport') emoji = "🚌";
+        
+        return L.divIcon({
+            html: `<div style="font-size:20px; background:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`,
+            className: 'custom-div-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
         });
     }
 </script>

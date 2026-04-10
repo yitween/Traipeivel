@@ -2,219 +2,149 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>個人探險日誌 - Traipeivel</title>
     <style>
-        :root { --rpg-gold: #FFD700; --rpg-cyan: #00e5ff; }
-        body { 
-            background: url('Gemini_Generated_Image_ucqy25ucqy25ucqy.png') no-repeat center center fixed; 
-            background-size: cover; margin: 0; padding: 0; color: white; font-family: sans-serif;
+        :root { 
+            --rpg-gold: #FFD700; 
+            --rpg-cyan: #00e5ff; 
+            --primary-blue: #1a73e8;
+            --glass-bg: rgba(0, 0, 0, 0.7);
         }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: -1; }
-    
-        /* 頂部角色資訊 */
-        .rpg-header { padding: 30px 20px; display: flex; align-items: center; gap: 15px; margin-top: 20px; }
-        .gold-frame { width: 70px; height: 70px; border: 3px solid var(--rpg-gold); border-radius: 12px; overflow: hidden; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
-        .gold-frame img { width: 100%; height: 100%; object-fit: cover; }
-    
-        /* RPG 標籤頁 (切換 資訊/貼文/收藏) */
-        .rpg-tabs { display: flex; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .rpg-tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; cursor: pointer; color: #aaa; transition: 0.3s; }
-        .rpg-tab.active { color: var(--rpg-gold); background: rgba(255,255,255,0.1); font-weight: bold; border-bottom: 2px solid var(--rpg-gold); }
-    
-        /* 貼文發布區 */
-        .post-trigger { 
-            background: rgba(255,255,255,0.1); margin: 15px; padding: 15px; border-radius: 12px; 
-            border: 1px dashed rgba(255,255,255,0.4); text-align: center; font-size: 14px;
-        }
-    
-        /* 貼文網格 (仿 Instagram 但帶有 RPG 質感) */
-        .post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; display: none; }
-        .post-grid.active { display: grid; }
-        .post-item { aspect-ratio: 1/1; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; }
-        .post-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-        .post-badge { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.6); font-size: 10px; padding: 2px 5px; border-radius: 4px; }
-    
-        /* 數值面板 */
-        .stats-container { padding: 20px; }
-        .stat-row { display: flex; justify-content: space-between; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
 
         body { 
             background: url('Gemini_Generated_Image_ucqy25ucqy25ucqy.png') no-repeat center center fixed; 
-            background-size: cover; margin: 0; padding: 20px; color: white;
+            background-size: cover; margin: 0; padding: 0; color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
         }
+
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: -1; }
+
+        /* 1. 登入區塊樣式 (置中彈窗感) */
+        .auth-container { 
+            background: white; border-radius: 20px; padding: 30px 20px; 
+            margin: 100px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #333;
+        }
+        .auth-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666; font-weight: bold; }
+        .tab.active { color: var(--primary-blue); border-bottom: 2px solid var(--primary-blue); }
+        .auth-form { display: none; flex-direction: column; gap: 15px; }
+        .auth-form.active { display: flex; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
+        .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: bold; }
+
+        /* 2. 角色資訊區 (整合版) */
+        .profile-section { display: none; padding: 20px; padding-bottom: 100px; }
         
-        /* RPG Panel */
-        .rpg-container { background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); border-radius: 24px; padding: 25px; border: 1px solid rgba(255,255,255,0.2); margin-top: 40px; }
-        .avatar-wrapper { display: flex; align-items: center; gap: 20px; }
-        .gold-frame { width: 85px; height: 85px; border: 3px solid #FFD700; border-radius: 12px; overflow: hidden; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+        .rpg-panel { 
+            background: var(--glass-bg); backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; 
+            padding: 20px; margin-top: 20px;
+        }
+
+        .avatar-box { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .gold-frame { 
+            width: 75px; height: 75px; border: 3px solid var(--rpg-gold); 
+            border-radius: 15px; overflow: hidden; box-shadow: 0 0 15px rgba(255,215,0,0.5); 
+        }
         .gold-frame img { width: 100%; height: 100%; object-fit: cover; }
         
-        .lvl-tag { background: #FFD700; color: black; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
-        .rpg-progress { height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin: 20px 0; position: relative; }
-        .rpg-fill { width: 68%; height: 100%; background: linear-gradient(90deg, #00d2ff, #3a7bd5); border-radius: 5px; box-shadow: 0 0 10px #00d2ff; }
-        
-        .rpg-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        
-        body { 
-            background: linear-gradient(135deg, #1e2a4a 0%, #3d5a80 100%); 
-            color: white; padding: 20px; min-height: 100vh;
-        }
-        .rpg-panel { 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 25px; 
-        }
-        .rpg-avatar-box { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; }
-        .rpg-avatar { width: 80px; height: 80px; border: 3px solid #fbc02d; border-radius: 10px; box-shadow: 0 0 15px #fbc02d; }
-        .lvl-badge { background: #fbc02d; color: #333; padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 14px; }
-        .exp-bar-rpg { height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; margin: 15px 0; overflow: hidden; }
-        .exp-fill-rpg { height: 100%; background: #00e5ff; box-shadow: 0 0 10px #00e5ff; width: 65%; }
-        .menu-item-rpg { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid transparent; }
-        .menu-item-rpg:hover { border-left-color: #fbc02d; background: rgba(255,255,255,0.2); }
-            :root { --primary: #1a73e8; --bg: #f8f9fa; }
-            body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 80px; }
-        
-        /* 1. 登入/註冊 表單樣式 */
-        .auth-container { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 20px auto; }
-        .auth-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666; }
-        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
-        .auth-form { display: none; flex-direction: column; gap: 12px; }
-        .auth-form.active { display: flex; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        .lvl-badge { background: var(--rpg-gold); color: black; padding: 2px 10px; border-radius: 5px; font-weight: bold; font-size: 13px; }
 
-        /* 2. 原有的 RPG 成就樣式 */
-        #profileContent { display: none; }
-        .profile-card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .avatar { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; line-height: 80px; color: white; font-size: 30px; }
-        .exp-bar { background: #eee; height: 15px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
-        .exp-fill { background: #4caf50; height: 100%; width: 0%; transition: 0.5s; }
+        /* 經驗條 */
+        .exp-container { margin: 15px 0; font-size: 12px; color: #ccc; }
+        .exp-bar { height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-top: 5px; overflow: hidden; }
+        .exp-fill { height: 100%; background: linear-gradient(90deg, #00d2ff, #3a7bd5); width: 0%; transition: width 0.8s ease; }
 
-        /* 3. 導覽列 (與 index 一致) */
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
+        /* 3. 標籤頁切換 */
+        .rpg-tabs { display: flex; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; overflow: hidden; }
+        .rpg-tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; cursor: pointer; color: #aaa; }
+        .rpg-tab.active { color: var(--rpg-gold); background: rgba(255,255,255,0.1); font-weight: bold; }
+
+        /* 4. 內容區塊 */
+        .tab-content { display: none; margin-top: 20px; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stat-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        .post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .post-item { aspect-ratio: 1/1; background: #333; border-radius: 4px; overflow: hidden; position: relative; }
+        .post-item img { width: 100%; height: 100%; object-fit: cover; }
+        .post-label { position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.6); font-size: 10px; padding: 2px 4px; border-radius: 3px; }
+
+        /* 5. 底部導覽 */
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
         .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; font-size: 14px; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-item.active { color: var(--primary-blue); font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="overlay"></div>
 
-    <div class="rpg-header">
-        <div class="gold-frame"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png"></div>
-        <div>
-            <div style="font-size:20px; font-weight:bold;">神風特攻隊 <span style="font-size:12px; color:var(--rpg-gold);">世界等級 5</span></div>
-            <div style="font-size:12px; margin-top:5px; color:#ccc;">UID: 411000606</div>
-        </div>
-    </div>
-    
-    <div class="rpg-tabs">
-        <div class="rpg-tab active" onclick="switchTab('stats', this)">角色資訊</div>
-        <div class="rpg-tab" onclick="switchTab('my-posts', this)">冒險日誌</div>
-        <div class="rpg-tab" onclick="switchTab('favorites', this)">收藏夾</div>
-    </div>
-    
-    <div id="stats" class="stats-container tab-content" style="display:block;">
-        <div class="stat-row"><span>總探索距離</span><span style="color:var(--rpg-cyan);">128.5 km</span></div>
-        <div class="stat-row"><span>達成任務數</span><span style="color:var(--rpg-cyan);">42</span></div>
-        <div class="stat-row"><span>AI 顧問好感度</span><span style="color:#ff80ab;">Lv. 8</span></div>
-    </div>
-    
-    <div id="my-posts" class="tab-content" style="display:none;">
-        <div class="post-trigger" onclick="alert('開啟相機/相簿發布新貼文...')">
-            ✨ 紀錄新的探險瞬間...
-        </div>
-        <div class="post-grid active">
-            <div class="post-item"><img src="https://images.unsplash.com/photo-1513019002896-357733650a98?w=300"> <span class="post-badge">📍 西門</span></div>
-            <div class="post-item"><img src="https://images.unsplash.com/photo-1552055944-13b6ee7cc203?w=300"> <span class="post-badge">📍 101</span></div>
-            <div class="post-item"><img src="https://images.unsplash.com/photo-1493225416302-61bb0ad343d9?w=300"> <span class="post-badge">📍 北投</span></div>
-        </div>
-    </div>
-    
-    <div id="favorites" class="tab-content" style="display:none;">
-        <div class="post-grid active">
-            <div class="post-item"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300"> <span class="post-badge">👤 Alan</span></div>
-        </div>
-    </div>
-    
     <div class="overlay"></div>
-
-    <div class="rpg-container">
-        <div class="avatar-wrapper">
-            <div class="gold-frame"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png"></div>
-            <div>
-                <div style="font-size:22px; font-weight:bold;">神風特攻隊</div>
-                <span class="lvl-tag">等級 42</span>
-            </div>
-        </div>
-    
-        <div style="margin-top:25px; font-size:12px; display:flex; justify-content:space-between;">
-            <span>開拓經驗值</span><span>2450 / 3000</span>
-        </div>
-        <div class="rpg-progress"><div class="rpg-fill"></div></div>
-    
-        <div style="margin-top:30px;">
-            <div class="rpg-btn"><span>冒險手冊</span><span style="color:#FFD700;">❯</span></div>
-            <div class="rpg-btn"><span>數位背包</span><span style="color:#FFD700;">❯</span></div>
-            <div class="rpg-btn"><span>設定系統</span><span style="color:#FFD700;">❯</span></div>
-        </div>
-    </div>
-    
-    <div class="rpg-panel">
-        <div class="rpg-avatar-box">
-            <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="rpg-avatar">
-            <div>
-                <div style="font-size:22px; font-weight:bold; letter-spacing:1px;">神風特攻隊</div>
-                <span class="lvl-badge">Lv. 42</span>
-            </div>
-        </div>
-    
-        <div style="font-size:12px; color:#aaa;">開拓經驗 2450/3000</div>
-        <div class="exp-bar-rpg"><div class="exp-fill-rpg"></div></div>
-    
-        <div style="margin-top:30px;">
-            <div class="menu-item-rpg"><span>冒險手冊</span> <span>▶</span></div>
-            <div class="menu-item-rpg"><span>數位背包</span> <span>▶</span></div>
-            <div class="menu-item-rpg"><span>角色光錐</span> <span>▶</span></div>
-        </div>
-    </div>
 
     <div id="authBox" class="auth-container">
         <div class="auth-tabs">
-            <div class="tab active" onclick="switchAuth('login', this)">登入</div>
-            <div class="tab" onclick="switchAuth('register', this)">註冊</div>
+            <div class="tab active" onclick="switchAuth('login', this)">探險家登入</div>
+            <div class="tab" onclick="switchAuth('register', this)">建立契約</div>
         </div>
 
         <form id="loginForm" class="auth-form active" onsubmit="handleAuth(event, 'login')">
             <input type="email" placeholder="電子郵件" required>
-            <input type="password" placeholder="密碼" required>
-            <button type="submit" class="btn-submit">立即登入</button>
+            <input type="password" placeholder="輸入密碼" required>
+            <button type="submit" class="btn-submit">啟動脈動導航</button>
         </form>
 
         <form id="registerForm" class="auth-form" onsubmit="handleAuth(event, 'register')">
             <input type="text" placeholder="探險家暱稱" required>
             <input type="email" placeholder="電子郵件" required>
             <input type="password" placeholder="設定密碼" required>
-            <button type="submit" class="btn-submit">建立帳號</button>
+            <button type="submit" class="btn-submit">簽署冒險契約</button>
         </form>
     </div>
 
-    <div id="profileContent">
-        <div class="profile-card">
-            <div class="avatar" id="userInitial">神</div>
-            <h2 id="userNameDisplay">神風特攻隊</h2>
-            <p>等級：<span id="lvl">1</span> | 經驗值：<span id="exp">0</span>/100</p>
-            <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
-            <button onclick="logout()" style="margin-top: 15px; background: none; border: 1px solid #ccc; padding: 5px 15px; border-radius: 5px; cursor: pointer;">登出帳號</button>
+    <div id="profileContent" class="profile-section">
+        <div class="rpg-panel">
+            <div class="avatar-box">
+                <div class="gold-frame"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png"></div>
+                <div>
+                    <div id="userNameDisplay" style="font-size: 22px; font-weight: bold; letter-spacing: 1px;">神風特攻隊</div>
+                    <span class="lvl-badge">Lv. <span id="lvl">42</span></span>
+                </div>
+                <button onclick="logout()" style="margin-left: auto; background: none; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 10px; border-radius: 8px; font-size: 12px;">登出</button>
+            </div>
+
+            <div class="exp-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>開拓經驗值</span><span id="expText">2450 / 3000</span>
+                </div>
+                <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
+            </div>
         </div>
-        
-        <div class="profile-card" style="margin-top: 15px; text-align: left;">
-            <h3>數位脈動成就</h3>
-            <ul style="padding-left: 20px; font-size: 14px; color: #555;">
-                <li>成功串接 OpenFreeMap 定位系統</li>
-                <li>啟動動態天氣感知引擎</li>
-                <li>整合 Gemini AI 顧問欄位</li>
-            </ul>
+
+        <div class="rpg-tabs">
+            <div class="rpg-tab active" onclick="switchTab('stats', this)">📊 屬性</div>
+            <div class="rpg-tab" onclick="switchTab('posts', this)">📜 日誌</div>
+            <div class="rpg-tab" onclick="switchTab('achieve', this)">🏆 成就</div>
+        </div>
+
+        <div id="stats" class="tab-content" style="display: block;">
+            <div class="stat-card"><span>總探索距離</span><span style="color:var(--rpg-cyan);">128.5 km</span></div>
+            <div class="stat-card"><span>達成任務數</span><span style="color:var(--rpg-cyan);">42 個</span></div>
+            <div class="stat-card"><span>AI 好感度</span><span style="color:#ff80ab;">Lv. 8</span></div>
+        </div>
+
+        <div id="posts" class="tab-content">
+            <div class="post-grid">
+                <div class="post-item"><img src="https://images.unsplash.com/photo-1513019002896-357733650a98?w=300"><span class="post-label">📍西門</span></div>
+                <div class="post-item"><img src="https://images.unsplash.com/photo-1552055944-13b6ee7cc203?w=300"><span class="post-label">📍101</span></div>
+                <div class="post-item"><img src="https://images.unsplash.com/photo-1493225416302-61bb0ad343d9?w=300"><span class="post-label">📍北投</span></div>
+            </div>
+        </div>
+
+        <div id="achieve" class="tab-content">
+            <div class="stat-card"><span>🗺️ 城市之眼</span><span style="color:var(--rpg-gold);">已解鎖</span></div>
+            <div class="stat-card"><span>⚡ 脈動追蹤者</span><span style="color:var(--rpg-gold);">進行中</span></div>
         </div>
     </div>
 
@@ -226,17 +156,7 @@
     </nav>
 
     <script>
-        function switchTab(tabId, el) {
-            // 切換 Tab 樣式
-            document.querySelectorAll('.rpg-tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-    
-            // 切換內容顯示
-            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-            document.getElementById(tabId).style.display = 'block';
-        }
-        
-        // 1. 切換 登入/註冊 分頁
+        // 1. 登入切換邏輯
         function switchAuth(type, el) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
@@ -244,48 +164,46 @@
             document.getElementById(type + 'Form').classList.add('active');
         }
 
-        // 2. 處理 登入/註冊 邏輯
         function handleAuth(event, type) {
             event.preventDefault();
-            // 4/11 展示時說明：此處未來會介接 Firebase Auth 或 自建 API
-            const name = type === 'register' ? event.target.elements[0].value : "探險家";
+            const name = type === 'register' ? event.target.elements[0].value : "神風特攻隊";
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userName', name);
-            checkLoginStatus();
-            alert(type === 'login' ? "歡迎回來！" : "註冊成功，開始你的探險吧！");
+            localStorage.setItem('userExp', "2450"); // 模擬初始經驗值
+            checkStatus();
         }
 
-        // 3. 檢查登入狀態並更新 UI
-        function checkLoginStatus() {
+        // 2. 狀態與 UI 更新
+        function checkStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            const authBox = document.getElementById('authBox');
-            const profileContent = document.getElementById('profileContent');
+            document.getElementById('authBox').style.display = isLoggedIn ? 'none' : 'block';
+            document.getElementById('profileContent').style.display = isLoggedIn ? 'block' : 'none';
 
             if (isLoggedIn) {
-                authBox.style.display = 'none';
-                profileContent.style.display = 'block';
-                
-                // 更新資料
-                const name = localStorage.getItem('userName') || "神風特攻隊";
+                const name = localStorage.getItem('userName');
                 document.getElementById('userNameDisplay').innerText = name;
-                document.getElementById('userInitial').innerText = name.charAt(0);
                 
-                let totalExp = parseInt(localStorage.getItem('userExp') || "0");
-                document.getElementById('lvl').innerText = Math.floor(totalExp / 100) + 1;
-                document.getElementById('exp').innerText = totalExp % 100;
-                document.getElementById('expFill').style.width = (totalExp % 100) + "%";
-            } else {
-                authBox.style.display = 'block';
-                profileContent.style.display = 'none';
+                // 動態跑條動畫
+                setTimeout(() => {
+                    document.getElementById('expFill').style.width = "81.6%";
+                }, 100);
             }
         }
 
         function logout() {
             localStorage.setItem('isLoggedIn', 'false');
-            checkLoginStatus();
+            checkStatus();
         }
 
-        window.onload = checkLoginStatus;
+        // 3. 標籤切換
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.rpg-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            el.classList.add('active');
+            document.getElementById(tabId).style.display = 'block';
+        }
+
+        window.onload = checkStatus;
     </script>
 </body>
 </html>

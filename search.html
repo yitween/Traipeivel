@@ -4,6 +4,42 @@
     <meta charset="UTF-8">
     <title>找尋探險隊友 - Traipeivel</title>
     <style>
+        :root { --g-blue: #4285F4; --g-red: #EA4335; --g-yellow: #FBBC05; --g-green: #34A853; --text-main: #202124; }
+        body { background: white; margin: 0; font-family: arial, sans-serif; color: var(--text-main); padding-bottom: 80px; }
+        
+        /* 1. 頂部搜尋列 (Sticky) */
+        .search-header { position: sticky; top: 0; background: white; padding: 15px; border-bottom: 1px solid #ebebeb; z-index: 100; }
+        .mini-logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .search-input-wrapper { background: white; border: 1px solid #dfe1e5; border-radius: 24px; padding: 8px 16px; display: flex; align-items: center; box-shadow: 0 1px 6px rgba(32,33,36,0.2); }
+        .search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 16px; margin-left: 10px; }
+    
+        /* 2. 分類過濾標籤 */
+        .filter-bar { display: flex; overflow-x: auto; padding: 10px 15px; gap: 20px; border-bottom: 1px solid #ebebeb; white-space: nowrap; }
+        .filter-item { font-size: 14px; color: #5f6368; cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; }
+        .filter-item.active { color: var(--g-blue); border-bottom-color: var(--g-blue); font-weight: bold; }
+    
+        /* 3. 搜尋結果區域 */
+        .results-container { padding: 15px; }
+        .result-card { margin-bottom: 25px; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+        /* 景點樣式 (仿 Google Map 結果) */
+        .poi-result { display: flex; gap: 12px; }
+        .poi-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .poi-info { flex: 1; }
+        .poi-title { color: #1a0dab; font-size: 18px; text-decoration: none; display: block; margin-bottom: 4px; }
+        .poi-rating { color: #70757a; font-size: 13px; }
+    
+        /* 用戶樣式 (仿 Instagram/LinkedIn) */
+        .user-result { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #eee; }
+        .user-name { font-weight: bold; font-size: 15px; }
+        .follow-btn { margin-left: auto; background: var(--g-blue); color: white; border: none; padding: 6px 16px; border-radius: 18px; font-size: 13px; }
+    
+        /* 貼文樣式 (仿 Pinterest/IG) */
+        .post-result { border: 1px solid #dadce0; border-radius: 8px; overflow: hidden; margin-top: 10px; }
+        .post-content { padding: 10px; font-size: 14px; }
+        
         body { background: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; }
         .g-logo { font-size: 56px; font-weight: 600; margin-bottom: 25px; letter-spacing: -2px; }
         .blue { color: #4285F4; } .red { color: #EA4335; } .yellow { color: #FBBC05; } .green { color: #34A853; }
@@ -33,6 +69,57 @@
     </style>
 </head>
 <body>
+    <div class="search-header">
+        <div class="mini-logo">
+            <span class="blue">T</span><span class="red">r</span><span class="yellow">a</span><span class="blue">i</span><span class="green">p</span><span class="red">e</span>
+        </div>
+        <div class="search-input-wrapper">
+            <span style="color:#9aa0a6;">🔍</span>
+            <input type="text" id="mainSearch" placeholder="搜尋景點、用戶或貼文..." onkeyup="handleSearch()">
+        </div>
+    </div>
+    
+    <div class="filter-bar">
+        <div class="filter-item active" onclick="changeFilter('all', this)">🔍 全部</div>
+        <div class="filter-item" onclick="changeFilter('poi', this)">📸 景點</div>
+        <div class="filter-item" onclick="changeFilter('user', this)">👤 用戶</div>
+        <div class="filter-item" onclick="changeFilter('post', this)">📜 貼文</div>
+    </div>
+    
+    <div class="results-container" id="resultsList">
+        <div class="result-card poi-section">
+            <div class="poi-result">
+                <img src="https://images.unsplash.com/photo-1552055944-13b6ee7cc203?w=200" class="poi-img">
+                <div class="poi-info">
+                    <a href="#" class="poi-title">台北 101 觀景台</a>
+                    <div class="poi-rating">⭐ 4.8 (2,450 評價) · 歷史地標</div>
+                    <div style="font-size:13px; color:#5f6368; margin-top:4px;">數位脈動強烈：高機率觸發稀有任務</div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="result-card user-section">
+            <div class="user-result">
+                <div class="user-avatar" style="background-image: url('Gemini_Generated_Image_ucqy25ucqy25ucqy.png'); background-size: cover;"></div>
+                <div>
+                    <div class="user-name">神風特攻隊_隊長</div>
+                    <div style="font-size:12px; color:#70757a;">Lv. 42 冒險家 · 台北</div>
+                </div>
+                <button class="follow-btn">追蹤</button>
+            </div>
+        </div>
+    
+        <div class="result-card post-section">
+            <div style="font-size:12px; color:#70757a; margin-bottom:5px;">來自 @Alan_Travel 的冒險日誌</div>
+            <div class="post-result">
+                <img src="https://images.unsplash.com/photo-1513019002896-357733650a98?w=500" style="width:100%;">
+                <div class="post-content">
+                    今天在西門町發現了超隱藏的數位節點！XP 拿到手軟... #台北探險 #Traipeivel
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="g-logo">
         <span class="blue">T</span><span class="red">r</span><span class="yellow">a</span><span class="blue">i</span><span class="green">p</span><span class="red">e</span>
     </div>
@@ -80,5 +167,33 @@
         <a href="message.html" class="nav-item">💬 訊息</a>
         <a href="personality.html" class="nav-item">👤 個人</a>
     </nav>
+
+    <script>
+        function changeFilter(type, el) {
+            // 更新標籤樣式
+            document.querySelectorAll('.filter-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+    
+            // 簡單的過濾邏輯
+            const sections = {
+                'poi': document.querySelectorAll('.poi-section'),
+                'user': document.querySelectorAll('.user-section'),
+                'post': document.querySelectorAll('.post-section')
+            };
+    
+            if (type === 'all') {
+                Object.values(sections).forEach(group => group.forEach(s => s.style.display = 'block'));
+            } else {
+                Object.keys(sections).forEach(key => {
+                    sections[key].forEach(s => s.style.display = (key === type ? 'block' : 'none'));
+                });
+            }
+        }
+    
+        function handleSearch() {
+            // 4/11 展示說明：此處可介接搜尋 API，目前為靜態過濾模擬
+            console.log("正在檢索資料庫...");
+        }
+    </script>
 </body>
 </html>

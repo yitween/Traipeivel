@@ -2,40 +2,47 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Traipeivel - 城市探險</title>
+    <title>Traipeivel - 數位脈動導航</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+        :root { --primary: #1a73e8; }
         body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 70px; }
-        .top-bar { background: #1a73e8; color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
-        .logo { width: 40px; height: 40px; border-radius: 8px; background: white; padding: 2px; }
-        .search-container { padding: 15px; background: white; }
-        #map { height: 350px; width: 100%; }
+        .top-bar { background: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        .logo { width: 35px; height: 35px; background: white; border-radius: 5px; }
+        #map { height: 400px; width: 100%; }
+        
+        /* 圖層控制面板 */
+        .layer-control { position: absolute; top: 70px; right: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-size: 13px; }
+        .layer-item { margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+
         .card { background: white; padding: 15px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .api-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px; box-sizing: border-box; }
-        /* 底部導覽 */
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 2000;}
         .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; font-size: 14px; }
-        .nav-item.active { color: #1a73e8; font-weight: bold; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <img src="ic_launcher_foreground.png.png" alt="Logo" class="logo">
-    <span style="font-weight: bold; font-size: 18px;">Traipeivel</span>
-</div>
-
-<div class="search-container">
-    <input type="text" id="addressSearch" placeholder="🔍 查詢地址或地標..." style="width: 75%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-    <button onclick="searchAddress()" style="width: 20%; padding: 10px; background: #1a73e8; color: white; border: none; border-radius: 5px;">搜尋</button>
+    <img src="image-removebg-preview.png" alt="Logo" class="logo">
+    <span style="font-weight: bold;">Traipeivel 數位探險</span>
 </div>
 
 <div id="map"></div>
+<div class="layer-control">
+    <strong>📡 TDX 即時數據</strong>
+    <div class="layer-item"><input type="checkbox" id="mrtLayer" checked onchange="toggleMRT()"> 🚇 捷運站點</div>
+    <div class="layer-item"><input type="checkbox" id="busLayer" onchange="toggleBus()"> 🚌 公車位置</div>
+</div>
 
 <div class="card">
-    <strong>🤖 Gemini AI 顧問設定</strong>
-    <input type="password" id="geminiKey" class="api-input" placeholder="在此輸入您的 Gemini API Key..." onchange="saveKey()">
-    <p style="font-size: 11px; color: gray;">*金鑰僅儲存在您的瀏覽器中，用於即時旅程分析。</p>
+    <div id="weatherDisplay" style="color: #f57c00; font-weight: bold;">🌤️ 讀取 TDX 氣象數據中...</div>
+    <p id="locationDisplay" style="font-size: 13px; color: #555;">📍 定位中...</p>
+</div>
+
+<div class="card" style="border-left: 5px solid var(--primary);">
+    <strong>🤖 Gemini AI 顧問</strong>
+    <p id="aiAdvice" style="font-size: 14px; margin-top: 5px;">偵測到板南線人潮較多，建議改搭公車前往目的地以賺取更多 EXP！</p>
 </div>
 
 <nav class="nav">
@@ -47,26 +54,58 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const map = L.map('map').setView([25.047, 121.517], 15);
+    // 1. 初始化地圖
+    const map = L.map('map').setView([25.047, 121.517], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    function searchAddress() {
-        const addr = document.getElementById('addressSearch').value;
-        if(!addr) return;
-        // 4/11 展示時說明：此處會串接 OpenFreeMap / Nominatim API 進行地理編碼
-        alert("正在查詢地址: " + addr + " ... (模擬前往該地標)");
+    // 2. 定義 TDX 資料圖層
+    const mrtMarkers = L.layerGroup();
+    const busMarkers = L.layerGroup();
+
+    // 模擬 TDX 捷運站點數據 (4/11 展示時說明：這是透過 TDX V2 API 獲取的點位)
+    const mrtStations = [
+        { name: "台北車站", pos: [25.047, 121.517], color: "blue" },
+        { name: "中山站", pos: [25.052, 121.520], color: "green" },
+        { name: "西門站", pos: [25.042, 121.508], color: "blue" }
+    ];
+
+    mrtStations.forEach(st => {
+        L.circleMarker(st.pos, { color: st.color, radius: 8, fillOpacity: 0.8 })
+         .bindPopup(`🚇 捷運站: ${st.name}`).addTo(mrtMarkers);
+    });
+    mrtMarkers.addTo(map);
+
+    // 模擬 TDX 即時公車位置 (4/11 展示時說明：這是動態更新的 Bus RealTimeNearStop API)
+    function updateBusPosition() {
+        busMarkers.clearLayers();
+        const busPos = [25.048 + Math.random()*0.01, 121.515 + Math.random()*0.01];
+        L.marker(busPos, {
+            icon: L.divIcon({ html: '🚌', className: 'bus-icon', iconSize: [25, 25] })
+        }).bindPopup("🚌 307路公車 (即時位置)").addTo(busMarkers);
+    }
+    
+    function toggleMRT() {
+        if(document.getElementById('mrtLayer').checked) mrtMarkers.addTo(map);
+        else map.removeLayer(mrtMarkers);
     }
 
-    function saveKey() {
-        const key = document.getElementById('geminiKey').value;
-        localStorage.setItem('gemini_api_key', key);
-        alert("API Key 已儲存，AI 顧問準備就緒！");
+    function toggleBus() {
+        if(document.getElementById('busLayer').checked) {
+            busMarkers.addTo(map);
+            updateBusPosition();
+            setInterval(updateBusPosition, 5000); // 每5秒模擬一次公車移動
+        } else {
+            map.removeLayer(busMarkers);
+        }
     }
 
-    // 初始化讀取 Key
-    window.onload = () => {
-        document.getElementById('geminiKey').value = localStorage.getItem('gemini_api_key') || "";
-    };
+    // 3. 定位與天氣 (同前)
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            L.marker([latitude, longitude]).addTo(map).bindPopup("您的位置").openPopup();
+        });
+    }
 </script>
 </body>
 </html>

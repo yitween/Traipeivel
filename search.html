@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <title>找尋探險隊友 - Traipeivel</title>
     <style>
+        body { background: white; text-align: center; padding-top: 100px; }
+        .google-logo { font-size: 48px; font-weight: bold; margin-bottom: 30px; }
+        .g-blue { color: #4285F4; } .g-red { color: #EA4335; } .g-yellow { color: #FBBC05; } .g-green { color: #34A853; }
+        .g-search-box { width: 85%; max-width: 584px; margin: 0 auto; border: 1px solid #dfe1e5; border-radius: 24px; padding: 12px 20px; display: flex; align-items: center; transition: 0.3s; }
+        .g-search-box:hover { box-shadow: 0 1px 6px rgba(32,33,36,.28); }
+        .g-btn-group { margin-top: 30px; }
+        .g-btn { background: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; color: #3c4043; font-size: 14px; margin: 5px; padding: 10px 16px; cursor: pointer; }
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 70px; }
         .header { background: #1a73e8; color: white; padding: 15px; text-align: center; }
         .search-box { padding: 20px; }
@@ -14,6 +21,19 @@
     </style>
 </head>
 <body>
+    <div class="google-logo">
+        <span class="g-blue">T</span><span class="g-red">r</span><span class="g-yellow">a</span><span class="g-blue">i</span><span class="g-green">p</span><span class="g-red">e</span>
+    </div>
+    
+    <div class="g-search-box">
+        <span style="color:#9aa0a6; margin-right:10px;">🔍</span>
+        <input type="text" placeholder="在 Traipeivel 上搜尋隊友或地址" style="border:none; outline:none; width:100%; font-size:16px;">
+    </div>
+    
+    <div class="g-btn-group">
+        <button class="g-btn">Google 搜尋</button>
+        <button class="g-btn">好手氣</button>
+    </div>
     <div class="header">🔍 搜尋用戶</div>
     <div class="search-box">
         <input type="text" placeholder="輸入用戶名稱..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">

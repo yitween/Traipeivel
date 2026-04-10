@@ -4,6 +4,40 @@
     <meta charset="UTF-8">
     <title>個人探險日誌 - Traipeivel</title>
     <style>
+        :root { --rpg-gold: #FFD700; --rpg-cyan: #00e5ff; }
+        body { 
+            background: url('Gemini_Generated_Image_ucqy25ucqy25ucqy.png') no-repeat center center fixed; 
+            background-size: cover; margin: 0; padding: 0; color: white; font-family: sans-serif;
+        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: -1; }
+    
+        /* 頂部角色資訊 */
+        .rpg-header { padding: 30px 20px; display: flex; align-items: center; gap: 15px; margin-top: 20px; }
+        .gold-frame { width: 70px; height: 70px; border: 3px solid var(--rpg-gold); border-radius: 12px; overflow: hidden; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .gold-frame img { width: 100%; height: 100%; object-fit: cover; }
+    
+        /* RPG 標籤頁 (切換 資訊/貼文/收藏) */
+        .rpg-tabs { display: flex; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .rpg-tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; cursor: pointer; color: #aaa; transition: 0.3s; }
+        .rpg-tab.active { color: var(--rpg-gold); background: rgba(255,255,255,0.1); font-weight: bold; border-bottom: 2px solid var(--rpg-gold); }
+    
+        /* 貼文發布區 */
+        .post-trigger { 
+            background: rgba(255,255,255,0.1); margin: 15px; padding: 15px; border-radius: 12px; 
+            border: 1px dashed rgba(255,255,255,0.4); text-align: center; font-size: 14px;
+        }
+    
+        /* 貼文網格 (仿 Instagram 但帶有 RPG 質感) */
+        .post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; display: none; }
+        .post-grid.active { display: grid; }
+        .post-item { aspect-ratio: 1/1; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+        .post-item img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .post-badge { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.6); font-size: 10px; padding: 2px 5px; border-radius: 4px; }
+    
+        /* 數值面板 */
+        .stats-container { padding: 20px; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
+
         body { 
             background: url('Gemini_Generated_Image_ucqy25ucqy25ucqy.png') no-repeat center center fixed; 
             background-size: cover; margin: 0; padding: 20px; color: white;
@@ -64,6 +98,45 @@
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
+
+    <div class="rpg-header">
+        <div class="gold-frame"><img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png"></div>
+        <div>
+            <div style="font-size:20px; font-weight:bold;">神風特攻隊 <span style="font-size:12px; color:var(--rpg-gold);">世界等級 5</span></div>
+            <div style="font-size:12px; margin-top:5px; color:#ccc;">UID: 411000606</div>
+        </div>
+    </div>
+    
+    <div class="rpg-tabs">
+        <div class="rpg-tab active" onclick="switchTab('stats', this)">角色資訊</div>
+        <div class="rpg-tab" onclick="switchTab('my-posts', this)">冒險日誌</div>
+        <div class="rpg-tab" onclick="switchTab('favorites', this)">收藏夾</div>
+    </div>
+    
+    <div id="stats" class="stats-container tab-content" style="display:block;">
+        <div class="stat-row"><span>總探索距離</span><span style="color:var(--rpg-cyan);">128.5 km</span></div>
+        <div class="stat-row"><span>達成任務數</span><span style="color:var(--rpg-cyan);">42</span></div>
+        <div class="stat-row"><span>AI 顧問好感度</span><span style="color:#ff80ab;">Lv. 8</span></div>
+    </div>
+    
+    <div id="my-posts" class="tab-content" style="display:none;">
+        <div class="post-trigger" onclick="alert('開啟相機/相簿發布新貼文...')">
+            ✨ 紀錄新的探險瞬間...
+        </div>
+        <div class="post-grid active">
+            <div class="post-item"><img src="https://images.unsplash.com/photo-1513019002896-357733650a98?w=300"> <span class="post-badge">📍 西門</span></div>
+            <div class="post-item"><img src="https://images.unsplash.com/photo-1552055944-13b6ee7cc203?w=300"> <span class="post-badge">📍 101</span></div>
+            <div class="post-item"><img src="https://images.unsplash.com/photo-1493225416302-61bb0ad343d9?w=300"> <span class="post-badge">📍 北投</span></div>
+        </div>
+    </div>
+    
+    <div id="favorites" class="tab-content" style="display:none;">
+        <div class="post-grid active">
+            <div class="post-item"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300"> <span class="post-badge">👤 Alan</span></div>
+        </div>
+    </div>
+    
     <div class="overlay"></div>
 
     <div class="rpg-container">
@@ -153,6 +226,16 @@
     </nav>
 
     <script>
+        function switchTab(tabId, el) {
+            // 切換 Tab 樣式
+            document.querySelectorAll('.rpg-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+    
+            // 切換內容顯示
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+        }
+        
         // 1. 切換 登入/註冊 分頁
         function switchAuth(type, el) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));

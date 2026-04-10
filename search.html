@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>找尋探險隊友 - Traipeivel</title>
     <style>
+        body { background: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; }
+        .g-logo { font-size: 56px; font-weight: 600; margin-bottom: 25px; letter-spacing: -2px; }
+        .blue { color: #4285F4; } .red { color: #EA4335; } .yellow { color: #FBBC05; } .green { color: #34A853; }
+        
+        .search-wrapper { width: 90%; max-width: 500px; position: relative; }
+        .search-field { 
+            width: 100%; padding: 14px 50px; border-radius: 30px; 
+            border: 1px solid #dfe1e5; font-size: 16px; outline: none; box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .icon-left { position: absolute; left: 18px; top: 15px; color: #9aa0a6; }
+        
         body { background: white; text-align: center; padding-top: 100px; }
         .google-logo { font-size: 48px; font-weight: bold; margin-bottom: 30px; }
         .g-blue { color: #4285F4; } .g-red { color: #EA4335; } .g-yellow { color: #FBBC05; } .g-green { color: #34A853; }
@@ -21,6 +33,20 @@
     </style>
 </head>
 <body>
+    <div class="g-logo">
+        <span class="blue">T</span><span class="red">r</span><span class="yellow">a</span><span class="blue">i</span><span class="green">p</span><span class="red">e</span>
+    </div>
+    
+    <div class="search-wrapper">
+        <span class="icon-left">🔍</span>
+        <input type="text" class="search-field" placeholder="搜尋隊友、地址或探險任務">
+    </div>
+    
+    <div style="margin-top:40px; display:flex; gap:10px;">
+        <button style="background:#f8f9fa; border:1px solid #f8f9fa; padding:10px 20px; border-radius:5px; color:#3c4043;">Traipeivel 搜尋</button>
+        <button style="background:#f8f9fa; border:1px solid #f8f9fa; padding:10px 20px; border-radius:5px; color:#3c4043;">手氣不錯</button>
+    </div>
+    
     <div class="google-logo">
         <span class="g-blue">T</span><span class="g-red">r</span><span class="g-yellow">a</span><span class="g-blue">i</span><span class="g-green">p</span><span class="g-red">e</span>
     </div>

@@ -2,333 +2,215 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traipeivel - 數位脈動導航</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        /* 核心佈局 */
-        :root { --trip-blue: #0066FF; --bg-gray: #F5F7FA; }
-        body { background: var(--bg-gray); margin: 0; padding-bottom: 80px; overflow-x: hidden; }
-        
-        /* 頂部品牌區 */
-        .header-banner { background: var(--trip-blue); color: white; padding: 30px 20px 50px; border-radius: 0 0 30px 30px; position: relative; }
-        .logo-img { width: 35px; height: 35px; background: white; border-radius: 8px; padding: 2px; }
-        
-        /* 浮動搜尋框 */
-        .search-box { 
-            background: white; margin: -25px 16px 0; padding: 12px 20px; 
-            border-radius: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
-            display: flex; align-items: center; z-index: 10; position: relative;
+        :root { 
+            --trip-blue: #0066FF; 
+            --bg-gray: #F5F7FA; 
+            --ai-bubble: #E8F0FE;
+            --rpg-gold: #FFD700;
         }
+
+        body { 
+            background: var(--bg-gray); 
+            margin: 0; 
+            padding-bottom: 90px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            overflow-x: hidden; 
+        }
+
+        /* 1. 頂部品牌 banner */
+        .header-banner { 
+            background: var(--trip-blue); 
+            color: white; 
+            padding: 25px 20px 50px; 
+            border-radius: 0 0 30px 30px; 
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo-box { display: flex; align-items: center; gap: 8px; }
+        .logo-img { width: 32px; height: 32px; background: white; border-radius: 8px; padding: 2px; }
         
-        /* 功能網格 */
-        .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 25px 16px; }
-        .nav-item-box { text-align: center; font-size: 12px; font-weight: 500; }
+        /* 2. 浮動搜尋框 (Trip.com 風格) */
+        .search-container { 
+            background: white; 
+            margin: -25px 16px 0; 
+            padding: 12px 20px; 
+            border-radius: 25px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+            display: flex; 
+            align-items: center; 
+            position: relative; 
+            z-index: 1000;
+        }
+        .search-container input { border: none; outline: none; width: 100%; font-size: 16px; margin-left: 10px; }
+
+        /* 3. 功能網格 (RPG 任務感) */
+        .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 25px 16px 15px; }
+        .nav-item { text-align: center; font-size: 12px; color: #333; font-weight: 500; }
         .nav-icon { 
-            width: 50px; height: 50px; background: white; border-radius: 16px; 
+            width: 52px; height: 52px; background: white; border-radius: 16px; 
             margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 24px;
         }
-    
-        /* 地圖區域 */
-        #map { height: 280px; margin: 0 16px; border-radius: 20px; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-    
-        /* AI 顧問卡片 */
-        .ai-card { 
-            background: white; margin: 20px 16px; border-radius: 18px; padding: 15px; 
-            display: flex; align-items: center; gap: 15px; border-left: 6px solid var(--trip-blue);
-        }
-        .ai-thumb { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; }
 
-        
-        :root { --trip-blue: #0066FF; --bg-gray: #F5F7FA; }
-        body { background: var(--bg-gray); margin: 0; font-family: sans-serif; }
-        .header-banner { background: var(--trip-blue); color: white; padding: 20px; border-radius: 0 0 20px 20px; }
-        .search-bar { background: white; margin: -25px 15px 10px; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; }
-        .function-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; }
-        .func-item { text-align: center; font-size: 12px; color: #333; }
-        .func-icon { width: 45px; height: 45px; background: white; border-radius: 12px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-size: 24px; }
-        #map { height: 250px; margin: 15px; border-radius: 15px; border: 2px solid white; }
-        .ai-assistant-trip { background: white; margin: 15px; border-radius: 15px; padding: 15px; display: flex; gap: 12px; }
-        
-        :root { --primary: #1a73e8; }
-        body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 70px; }
-        .top-bar { background: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
-        .logo { width: 35px; height: 35px; background: white; border-radius: 5px; }
-        #map { height: 400px; width: 100%; }
-        
-        /* 圖層控制面板 */
-        .layer-control { position: absolute; top: 70px; right: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); font-size: 13px; }
-        .layer-item { margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+        /* 4. 地圖區域與控制項 */
+        .map-section { position: relative; margin: 0 16px; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 4px solid white; }
+        #map { height: 300px; width: 100%; }
+        .layer-control { 
+            position: absolute; top: 10px; right: 10px; z-index: 1000; 
+            background: rgba(255,255,255,0.95); padding: 8px 12px; border-radius: 12px; 
+            font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
 
-        .card { background: white; padding: 15px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 2000;}
-        .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; font-size: 14px; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
+        /* 5. AI 助理對話區 (整合角色圖片) */
+        .ai-assistant-card { 
+            background: white; margin: 20px 16px; padding: 15px; border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .chat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .ai-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--trip-blue); object-fit: cover; }
+        .ai-status { font-size: 14px; font-weight: bold; color: var(--trip-blue); }
+        .chat-bubble { 
+            background: var(--ai-bubble); padding: 12px 16px; border-radius: 18px; 
+            border-top-left-radius: 2px; font-size: 14px; color: #333; line-height: 1.5;
+        }
+        .input-group { display: flex; gap: 10px; margin-top: 15px; }
+        .input-group input { 
+            flex: 1; padding: 10px 15px; border-radius: 20px; 
+            border: 1px solid #E0E0E0; font-size: 14px; outline: none; 
+        }
+        .send-btn { background: var(--trip-blue); color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: bold; }
 
-        .ai-assistant-section {
-            background: white;
-            margin: 10px;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* 6. 底部導覽列 */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            display: flex; justify-content: space-around; padding: 12px 0;
+            border-top: 1px solid #EEE; z-index: 2000;
         }
-        .chat-bubble-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        .ai-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 2px solid #1a73e8;
-            object-fit: cover;
-        }
-        .chat-bubble {
-            background: #e8f0fe;
-            padding: 12px;
-            border-radius: 15px;
-            border-top-left-radius: 0;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-            flex: 1;
-            position: relative;
-        }
-        .user-input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        #userInput {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-        }
-        .send-btn {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
+        .nav-link { text-decoration: none; color: #999; font-size: 12px; text-align: center; }
+        .nav-link.active { color: var(--trip-blue); font-weight: bold; }
+        .nav-link i { display: block; font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
+
 <div class="header-banner">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <img src="image-removebg-preview.png" class="logo-img">
-        <span style="font-weight:bold; letter-spacing:1px;">Traipeivel 探索台北</span>
-        <span style="font-size:14px;">24°C ☁️</span>
+    <div class="header-top">
+        <div class="logo-box">
+            <img src="image-removebg-preview.png" class="logo-img" alt="Logo">
+            <span style="font-size: 18px; font-weight: bold; letter-spacing: 1px;">Traipeivel</span>
+        </div>
+        <div id="weatherDisplay" style="font-size: 13px;">🌤️ 台北 24°C</div>
     </div>
-    <h1 style="margin: 25px 0 0; font-size: 24px;">今天想去哪裡冒險？</h1>
+    <h2 style="margin: 0; font-size: 22px;">今天想去哪裡冒險？</h2>
 </div>
 
-<div class="search-box">
-    <span style="color:#888; margin-right:10px;">🔍</span>
-    <input type="text" placeholder="輸入目的地或地標" style="border:none; width:100%; font-size:16px; outline:none;">
+<div class="search-container">
+    <span>🔍</span>
+    <input type="text" placeholder="搜尋目的地、隊友或任務...">
 </div>
 
 <div class="nav-grid">
-    <div class="nav-item-box"><div class="nav-icon">🚇</div>捷運</div>
-    <div class="nav-item-box"><div class="nav-icon">🚌</div>公車</div>
-    <div class="nav-item-box"><div class="nav-icon">📸</div>景點</div>
-    <div class="nav-item-box"><div class="nav-icon">🛡️</div>任務</div>
+    <div class="nav-item"><div class="nav-icon">🚇</div>捷運</div>
+    <div class="nav-item"><div class="nav-icon">🚌</div>公車</div>
+    <div class="nav-item"><div class="nav-icon">📸</div>景點</div>
+    <div class="nav-item"><div class="nav-icon">⚔️</div>任務</div>
 </div>
 
-<div id="map"></div>
-
-<div class="ai-card">
-    <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="ai-thumb">
-    <div>
-        <div style="color:var(--trip-blue); font-weight:bold; font-size:14px;">AI 冒險導讀</div>
-        <p style="margin:5px 0 0; font-size:13px; color:#444;">主人，目前西門站出現了數位脈動異常，前往掃描可獲得雙倍 EXP！</p>
+<div class="map-section">
+    <div id="map"></div>
+    <div class="layer-control">
+        <div style="margin-bottom:5px; font-weight:bold; border-bottom:1px solid #EEE; padding-bottom:3px;">📡 TDX 即時</div>
+        <input type="checkbox" id="mrtLayer" checked> 🚇 捷運 | 
+        <input type="checkbox" id="busLayer"> 🚌 公車
     </div>
 </div>
 
-<div class="header-banner">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <img src="image-removebg-preview.png" style="width:30px; background:white; border-radius:5px;">
-        <span style="font-size:18px; font-weight:bold;">Traipeivel 台北探索</span>
-        <span>台北 22°C 🌤️</span>
-    </div>
-    <h2 style="margin-top:20px;">想去哪裡冒險？</h2>
-</div>
-
-<div class="search-bar">
-    <span style="margin-right:10px;">🔍</span>
-    <input type="text" placeholder="輸入地標或地址..." style="border:none; outline:none; width:100%; font-size:16px;">
-</div>
-
-<div class="function-grid">
-    <div class="func-item"><div class="func-icon">🚇</div>捷運</div>
-    <div class="func-item"><div class="func-icon">🚌</div>公車</div>
-    <div class="func-item"><div class="func-icon">📸</div>景點</div>
-    <div class="func-item"><div class="func-icon">🎁</div>任務</div>
-</div>
-
-<div id="map"></div>
-<div class="ai-assistant-trip">
-    <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" style="width:50px; height:50px; border-radius:50%;">
-    <div>
-        <strong style="color:var(--trip-blue);">AI 旅遊顧問</strong>
-        <p id="aiResponse" style="font-size:13px; margin:5px 0;">主人，根據 TDX 資料，西門町目前人潮適中，適合前往探索！</p>
-    </div>
-</div>
-
-<div class="top-bar">
-    <img src="image-removebg-preview.png" alt="Logo" class="logo">
-    <span style="font-weight: bold;">Traipeivel 數位探險</span>
-</div>
-
-<div id="map"></div>
-<div class="layer-control">
-    <strong>TDX 即時數據</strong>
-    <div class="layer-item"><input type="checkbox" id="mrtLayer" checked onchange="toggleMRT()"> 捷運站點</div>
-    <div class="layer-item"><input type="checkbox" id="busLayer" onchange="toggleBus()"> 公車位置</div>
-</div>
-
-<div class="card">
-    <div id="weatherDisplay" style="color: #f57c00; font-weight: bold;">讀取 TDX 氣象數據中...</div>
-    <p id="locationDisplay" style="font-size: 13px; color: #555;">定位中...</p>
-</div>
-
-<div class="card" style="border-left: 5px solid var(--primary);">
-    <strong>Gemini AI 顧問</strong>
-    <p id="aiAdvice" style="font-size: 14px; margin-top: 5px;">偵測到板南線人潮較多，建議改搭公車前往目的地以賺取更多 EXP！</p>
-</div>
-
-<div class="ai-assistant-section">
-    <div class="chat-bubble-container">
-        <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="ai-avatar" alt="AI Agent">
-        <div class="chat-bubble" id="aiResponse">
-            您好！我是您的城市探險顧問。台北今天的數位脈動非常活絡，想去哪裡冒險呢？
+<div class="ai-assistant-card">
+    <div class="chat-header">
+        <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" class="ai-avatar">
+        <div>
+            <div class="ai-status">AI 冒險大使</div>
+            <div style="font-size: 11px; color: #888;">正在分析城市數位脈動...</div>
         </div>
     </div>
-    
-    <div class="user-input-group">
+    <div class="chat-bubble" id="aiResponse">
+        主人您好！目前偵測到西門町附近有密集的數位活動，前往探索可獲得額外經驗值喔！
+    </div>
+    <div class="input-group">
         <input type="text" id="userInput" placeholder="問問 AI 顧問...">
         <button class="send-btn" onclick="askGemini()">發送</button>
     </div>
 </div>
 
-<nav class="nav">
-    <a href="index.html" class="nav-item active">探索</a>
-    <a href="search.html" class="nav-item">找人</a>
-    <a href="message.html" class="nav-item">訊息</a>
-    <a href="personality.html" class="nav-item">個人</a>
+<nav class="bottom-nav">
+    <a href="index.html" class="nav-link active">🏠<br>探索</a>
+    <a href="search.html" class="nav-link">🔍<br>搜尋</a>
+    <a href="message.html" class="nav-link">💬<br>訊息</a>
+    <a href="personality.html" class="nav-link">👤<br>個人</a>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. 初始化地圖與圖層 (延續之前的設定)
-    const map = L.map('map').setView([25.047, 121.517], 15);
+    // 1. 初始化地圖
+    const map = L.map('map', { zoomControl: false }).setView([25.047, 121.517], 15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     
-    // 建立一個存放「探索結果」的圖層
     const exploreLayer = L.layerGroup().addTo(map);
-    let rangeCircle = null; // 用來畫出方圓範圍的圓圈
-    
-    // 2. 模擬周邊資料庫 (4/11 展示時說明：此處未來會串接 Google Places 或 TDX API)
+    let rangeCircle = null;
+
+    // 2. 模擬資料庫
     const poiDatabase = [
-        { name: "鼎泰豐", type: "restaurant", pos: [25.042, 121.526] },
-        { name: "中正紀念堂", type: "attraction", pos: [25.035, 121.519] },
-        { name: "阜杭豆漿", type: "restaurant", pos: [25.044, 121.525] },
-        { name: "台北車站公車站", type: "transport", pos: [25.048, 121.517] },
-        { name: "捷運善導寺站", type: "transport", pos: [25.044, 121.526] }
+        { name: "台北 101", type: "attraction", pos: [25.033, 121.564] },
+        { name: "西門紅樓", type: "attraction", pos: [25.042, 121.508] },
+        { name: "台北車站", type: "transport", pos: [25.047, 121.517] }
     ];
-    
-    // 3. 監聽地圖點擊事件
+
+    // 3. 點擊探索功能
     map.on('click', function(e) {
-        const clickCoords = e.latlng;
-        const radius = 500; // 設定方圓 500 公尺
-    
-        // 清除舊的探索結果
+        const coords = e.latlng;
         exploreLayer.clearLayers();
         if (rangeCircle) map.removeLayer(rangeCircle);
-    
-        // 畫出視覺化的探測圓圈
-        rangeCircle = L.circle(clickCoords, {
-            radius: radius,
-            color: '#1a73e8',
-            fillColor: '#1a73e8',
-            fillOpacity: 0.15,
-            dashArray: '5, 5'
+
+        rangeCircle = L.circle(coords, {
+            radius: 500, color: '#0066FF', fillColor: '#0066FF', fillOpacity: 0.1, dashArray: '5, 5'
         }).addTo(map);
-    
-        // 搜尋方圓內的 POI
-        let foundItems = [];
+
+        let found = [];
         poiDatabase.forEach(poi => {
-            // 使用 Leaflet 內建的 distanceTo 計算距離 (單位：公尺)
-            const distance = clickCoords.distanceTo(L.latLng(poi.pos));
-            
-            if (distance <= radius) {
-                const icon = getIconByType(poi.type);
-                L.marker(poi.pos, { icon: icon })
-                    .bindPopup(`<b>${poi.name}</b><br>距離：約 ${Math.round(distance)} 公尺`)
-                    .addTo(exploreLayer);
-                foundItems.push(poi.name);
+            if (coords.distanceTo(L.latLng(poi.pos)) <= 500) {
+                L.marker(poi.pos).bindPopup(`<b>${poi.name}</b>`).addTo(exploreLayer);
+                found.push(poi.name);
             }
         });
-    
-        // 更新 AI 顧問的提示
-        if (foundItems.length > 0) {
-            document.getElementById('aiAdvice').innerHTML = 
-                `探測成功！方圓 ${radius}m 內發現：${foundItems.join(', ')}。<br>建議前往探索以獲得加倍 EXP！`;
-        } else {
-            document.getElementById('aiAdvice').innerText = "這裡似乎是一片未開發區域，去其他地方點點看吧！";
-        }
-    });
-    
-    // 輔助函數：根據類型提供圖示
-    function getIconByType(type) {
-        let emoji = "📍";
-        if (type === 'restaurant') emoji = "🍴";
-        if (type === 'attraction') emoji = "📸";
-        if (type === 'transport') emoji = "🚌";
-        
-        return L.divIcon({
-            html: `<div style="font-size:20px; background:white; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.3);">${emoji}</div>`,
-            className: 'custom-div-icon',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
-    }
 
-    // 💡 直接使用你的 API KEY (請將下方替換為你的真實 KEY)
+        const aiMsg = found.length > 0 
+            ? `在該區域發現了 ${found.join('、')}！主人快去看看吧！` 
+            : "這區域目前數位脈動較弱，建議往捷運站方向移動喔！";
+        document.getElementById('aiResponse').innerText = aiMsg;
+    });
+
+    // 4. AI 對話邏輯
     const MY_GEMINI_API_KEY = "AIzaSyAEdHwA0ILuD7xN7sklqN_jxSk2qcH9y0A"; 
 
     async function askGemini() {
         const input = document.getElementById('userInput').value;
-        const responseBox = document.getElementById('aiResponse');
         if (!input) return;
-
-        responseBox.innerText = "正在分析城市數據與天氣中...";
         
-        try {
-            // 這裡模擬呼叫 Gemini API 的邏輯
-            // 實際開發時，你會使用 fetch 呼叫 https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
-            
-            // 4/11 展示用的模擬回覆語氣
-            setTimeout(() => {
-                const mockReplies = [
-                    `主人，根據即時 TDX 數據，目前捷運站人潮較多，建議您前往大安森林公園享受微風，還能獲得 30 EXP 喔！`,
-                    `感測到您附近有不錯的咖啡廳，那裡的數位脈動訊號非常穩定，適合稍作休息。`,
-                    `現在天氣轉涼了，我已為您在地圖上標註了附近的溫泉景點，要去看看嗎？`
-                ];
-                responseBox.innerText = mockReplies[Math.floor(Math.random() * mockReplies.length)];
-                document.getElementById('userInput').value = "";
-            }, 1500);
-
-        } catch (error) {
-            responseBox.innerText = "抱歉，通訊感測器似乎受到干擾，請稍後再試。";
-        }
+        const responseBox = document.getElementById('aiResponse');
+        responseBox.innerText = "正在分析數據...";
+        
+        setTimeout(() => {
+            const replies = [
+                "根據 TDX 即時數據，現在搭乘板南線人潮較多，建議改騎 Ubike 賺取 20 EXP！",
+                "主人，附近的天氣似乎要轉陰了，建議優先完成室內景點任務喔！",
+                "檢測到您的數位背包還有空間，西門町的隱藏任務正在呼喚您！"
+            ];
+            responseBox.innerText = replies[Math.floor(Math.random() * replies.length)];
+            document.getElementById('userInput').value = "";
+        }, 1200);
     }
 </script>
 </body>

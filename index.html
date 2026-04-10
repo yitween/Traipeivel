@@ -5,6 +5,16 @@
     <title>Traipeivel - 數位脈動導航</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+        :root { --trip-blue: #0066FF; --bg-gray: #F5F7FA; }
+        body { background: var(--bg-gray); margin: 0; font-family: sans-serif; }
+        .header-banner { background: var(--trip-blue); color: white; padding: 20px; border-radius: 0 0 20px 20px; }
+        .search-bar { background: white; margin: -25px 15px 10px; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; }
+        .function-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; }
+        .func-item { text-align: center; font-size: 12px; color: #333; }
+        .func-icon { width: 45px; height: 45px; background: white; border-radius: 12px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-size: 24px; }
+        #map { height: 250px; margin: 15px; border-radius: 15px; border: 2px solid white; }
+        .ai-assistant-trip { background: white; margin: 15px; border-radius: 15px; padding: 15px; display: flex; gap: 12px; }
+        
         :root { --primary: #1a73e8; }
         body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 70px; }
         .top-bar { background: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
@@ -77,6 +87,36 @@
 </head>
 <body>
 
+<div class="header-banner">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <img src="image-removebg-preview.png" style="width:30px; background:white; border-radius:5px;">
+        <span style="font-size:18px; font-weight:bold;">Traipeivel 台北探索</span>
+        <span>台北 22°C 🌤️</span>
+    </div>
+    <h2 style="margin-top:20px;">想去哪裡冒險？</h2>
+</div>
+
+<div class="search-bar">
+    <span style="margin-right:10px;">🔍</span>
+    <input type="text" placeholder="輸入地標或地址..." style="border:none; outline:none; width:100%; font-size:16px;">
+</div>
+
+<div class="function-grid">
+    <div class="func-item"><div class="func-icon">🚇</div>捷運</div>
+    <div class="func-item"><div class="func-icon">🚌</div>公車</div>
+    <div class="func-item"><div class="func-icon">📸</div>景點</div>
+    <div class="func-item"><div class="func-icon">🎁</div>任務</div>
+</div>
+
+<div id="map"></div>
+<div class="ai-assistant-trip">
+    <img src="Gemini_Generated_Image_ucqy25ucqy25ucqy.png" style="width:50px; height:50px; border-radius:50%;">
+    <div>
+        <strong style="color:var(--trip-blue);">AI 旅遊顧問</strong>
+        <p id="aiResponse" style="font-size:13px; margin:5px 0;">主人，根據 TDX 資料，西門町目前人潮適中，適合前往探索！</p>
+    </div>
+</div>
+
 <div class="top-bar">
     <img src="image-removebg-preview.png" alt="Logo" class="logo">
     <span style="font-weight: bold;">Traipeivel 數位探險</span>
@@ -84,18 +124,18 @@
 
 <div id="map"></div>
 <div class="layer-control">
-    <strong>📡 TDX 即時數據</strong>
-    <div class="layer-item"><input type="checkbox" id="mrtLayer" checked onchange="toggleMRT()"> 🚇 捷運站點</div>
-    <div class="layer-item"><input type="checkbox" id="busLayer" onchange="toggleBus()"> 🚌 公車位置</div>
+    <strong>TDX 即時數據</strong>
+    <div class="layer-item"><input type="checkbox" id="mrtLayer" checked onchange="toggleMRT()"> 捷運站點</div>
+    <div class="layer-item"><input type="checkbox" id="busLayer" onchange="toggleBus()"> 公車位置</div>
 </div>
 
 <div class="card">
-    <div id="weatherDisplay" style="color: #f57c00; font-weight: bold;">🌤️ 讀取 TDX 氣象數據中...</div>
-    <p id="locationDisplay" style="font-size: 13px; color: #555;">📍 定位中...</p>
+    <div id="weatherDisplay" style="color: #f57c00; font-weight: bold;">讀取 TDX 氣象數據中...</div>
+    <p id="locationDisplay" style="font-size: 13px; color: #555;">定位中...</p>
 </div>
 
 <div class="card" style="border-left: 5px solid var(--primary);">
-    <strong>🤖 Gemini AI 顧問</strong>
+    <strong>Gemini AI 顧問</strong>
     <p id="aiAdvice" style="font-size: 14px; margin-top: 5px;">偵測到板南線人潮較多，建議改搭公車前往目的地以賺取更多 EXP！</p>
 </div>
 
@@ -114,10 +154,10 @@
 </div>
 
 <nav class="nav">
-    <a href="index.html" class="nav-item active">🏠 探索</a>
-    <a href="search.html" class="nav-item">🔍 找人</a>
-    <a href="message.html" class="nav-item">💬 訊息</a>
-    <a href="personality.html" class="nav-item">👤 個人</a>
+    <a href="index.html" class="nav-item active">探索</a>
+    <a href="search.html" class="nav-item">找人</a>
+    <a href="message.html" class="nav-item">訊息</a>
+    <a href="personality.html" class="nav-item">個人</a>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -175,7 +215,7 @@
         // 更新 AI 顧問的提示
         if (foundItems.length > 0) {
             document.getElementById('aiAdvice').innerHTML = 
-                `✨ 探測成功！方圓 ${radius}m 內發現：${foundItems.join(', ')}。<br>建議前往探索以獲得加倍 EXP！`;
+                `探測成功！方圓 ${radius}m 內發現：${foundItems.join(', ')}。<br>建議前往探索以獲得加倍 EXP！`;
         } else {
             document.getElementById('aiAdvice').innerText = "這裡似乎是一片未開發區域，去其他地方點點看吧！";
         }
@@ -197,7 +237,7 @@
     }
 
     // 💡 直接使用你的 API KEY (請將下方替換為你的真實 KEY)
-    const MY_GEMINI_API_KEY = "你的_GEMINI_API_KEY_在這邊"; 
+    const MY_GEMINI_API_KEY = "AIzaSyAEdHwA0ILuD7xN7sklqN_jxSk2qcH9y0A"; 
 
     async function askGemini() {
         const input = document.getElementById('userInput').value;

@@ -2,185 +2,164 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>找尋探險隊友 - Traipeivel</title>
     <style>
-        :root { --g-blue: #4285F4; --g-red: #EA4335; --g-yellow: #FBBC05; --g-green: #34A853; --text-main: #202124; }
-        body { background: white; margin: 0; font-family: arial, sans-serif; color: var(--text-main); padding-bottom: 80px; }
-        
+        :root { 
+            --g-blue: #4285F4; --g-red: #EA4335; --g-yellow: #FBBC05; --g-green: #34A853; 
+            --text-main: #202124; --bg-light: #f8f9fa;
+        }
+
+        body { 
+            background: white; margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            color: var(--text-main); padding-bottom: 80px; 
+        }
+
         /* 1. 頂部搜尋列 (Sticky) */
-        .search-header { position: sticky; top: 0; background: white; padding: 15px; border-bottom: 1px solid #ebebeb; z-index: 100; }
-        .mini-logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
-        .search-input-wrapper { background: white; border: 1px solid #dfe1e5; border-radius: 24px; padding: 8px 16px; display: flex; align-items: center; box-shadow: 0 1px 6px rgba(32,33,36,0.2); }
+        .search-header { 
+            position: sticky; top: 0; background: white; 
+            padding: 15px; border-bottom: 1px solid #ebebeb; z-index: 1000; 
+        }
+        .mini-logo { font-size: 22px; font-weight: bold; margin-bottom: 12px; }
+        .blue { color: var(--g-blue); } .red { color: var(--g-red); } .yellow { color: var(--g-yellow); } .green { color: var(--g-green); }
+
+        .search-input-wrapper { 
+            background: white; border: 1px solid #dfe1e5; border-radius: 24px; 
+            padding: 10px 16px; display: flex; align-items: center; 
+            box-shadow: 0 2px 6px rgba(32,33,36,0.1); 
+        }
         .search-input-wrapper input { border: none; outline: none; width: 100%; font-size: 16px; margin-left: 10px; }
-    
+
         /* 2. 分類過濾標籤 */
-        .filter-bar { display: flex; overflow-x: auto; padding: 10px 15px; gap: 20px; border-bottom: 1px solid #ebebeb; white-space: nowrap; }
-        .filter-item { font-size: 14px; color: #5f6368; cursor: pointer; padding-bottom: 8px; border-bottom: 2px solid transparent; }
-        .filter-item.active { color: var(--g-blue); border-bottom-color: var(--g-blue); font-weight: bold; }
-    
+        .filter-bar { 
+            display: flex; overflow-x: auto; padding: 12px 15px; gap: 10px; 
+            background: white; border-bottom: 1px solid #ebebeb;
+        }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-item { 
+            font-size: 14px; color: #5f6368; cursor: pointer; padding: 6px 16px; 
+            border: 1px solid #dfe1e5; border-radius: 20px; white-space: nowrap; transition: 0.2s;
+        }
+        .filter-item.active { 
+            background: var(--g-blue); color: white; border-color: var(--g-blue); font-weight: 500; 
+        }
+
         /* 3. 搜尋結果區域 */
         .results-container { padding: 15px; }
-        .result-card { margin-bottom: 25px; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-        /* 景點樣式 (仿 Google Map 結果) */
+        .result-card { margin-bottom: 20px; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 景點樣式 (POI) */
         .poi-result { display: flex; gap: 12px; }
-        .poi-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .poi-img { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; }
         .poi-info { flex: 1; }
-        .poi-title { color: #1a0dab; font-size: 18px; text-decoration: none; display: block; margin-bottom: 4px; }
-        .poi-rating { color: #70757a; font-size: 13px; }
-    
-        /* 用戶樣式 (仿 Instagram/LinkedIn) */
-        .user-result { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: #eee; }
-        .user-name { font-weight: bold; font-size: 15px; }
-        .follow-btn { margin-left: auto; background: var(--g-blue); color: white; border: none; padding: 6px 16px; border-radius: 18px; font-size: 13px; }
-    
-        /* 貼文樣式 (仿 Pinterest/IG) */
-        .post-result { border: 1px solid #dadce0; border-radius: 8px; overflow: hidden; margin-top: 10px; }
-        .post-content { padding: 10px; font-size: 14px; }
-        
-        body { background: white; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; }
-        .g-logo { font-size: 56px; font-weight: 600; margin-bottom: 25px; letter-spacing: -2px; }
-        .blue { color: #4285F4; } .red { color: #EA4335; } .yellow { color: #FBBC05; } .green { color: #34A853; }
-        
-        .search-wrapper { width: 90%; max-width: 500px; position: relative; }
-        .search-field { 
-            width: 100%; padding: 14px 50px; border-radius: 30px; 
-            border: 1px solid #dfe1e5; font-size: 16px; outline: none; box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        .poi-title { color: #1a0dab; font-size: 17px; font-weight: 500; text-decoration: none; margin-bottom: 4px; display: block; }
+        .poi-meta { color: #70757a; font-size: 13px; line-height: 1.4; }
+
+        /* 用戶樣式 (User) */
+        .user-result { 
+            display: flex; align-items: center; gap: 12px; 
+            padding: 12px; background: var(--bg-light); border-radius: 15px; 
         }
-        .icon-left { position: absolute; left: 18px; top: 15px; color: #9aa0a6; }
-        
-        body { background: white; text-align: center; padding-top: 100px; }
-        .google-logo { font-size: 48px; font-weight: bold; margin-bottom: 30px; }
-        .g-blue { color: #4285F4; } .g-red { color: #EA4335; } .g-yellow { color: #FBBC05; } .g-green { color: #34A853; }
-        .g-search-box { width: 85%; max-width: 584px; margin: 0 auto; border: 1px solid #dfe1e5; border-radius: 24px; padding: 12px 20px; display: flex; align-items: center; transition: 0.3s; }
-        .g-search-box:hover { box-shadow: 0 1px 6px rgba(32,33,36,.28); }
-        .g-btn-group { margin-top: 30px; }
-        .g-btn { background: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; color: #3c4043; font-size: 14px; margin: 5px; padding: 10px 16px; cursor: pointer; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 70px; }
-        .header { background: #1a73e8; color: white; padding: 15px; text-align: center; }
-        .search-box { padding: 20px; }
-        .user-card { background: white; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
-        .avatar-circle { width: 50px; height: 50px; background: #ddd; border-radius: 50%; line-height: 50px; text-align: center; font-weight: bold; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
-        .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; }
+        .avatar-circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .user-details { flex: 1; }
+        .user-details strong { display: block; font-size: 15px; }
+        .user-details small { color: #70757a; font-size: 12px; }
+        .follow-btn { background: var(--g-blue); color: white; border: none; padding: 6px 14px; border-radius: 18px; font-size: 13px; font-weight: 500; }
+
+        /* 4. 通用底部導覽列 */
+        .bottom-nav { 
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            display: flex; justify-content: space-around; padding: 12px 0;
+            border-top: 1px solid #EEE; z-index: 2000;
+        }
+        .nav-link { text-decoration: none; color: #999; font-size: 12px; text-align: center; }
+        .nav-link.active { color: var(--g-blue); font-weight: bold; }
+        .nav-link span { display: block; font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
+
     <div class="search-header">
         <div class="mini-logo">
             <span class="blue">T</span><span class="red">r</span><span class="yellow">a</span><span class="blue">i</span><span class="green">p</span><span class="red">e</span>
         </div>
         <div class="search-input-wrapper">
             <span style="color:#9aa0a6;">🔍</span>
-            <input type="text" id="mainSearch" placeholder="搜尋景點、用戶或貼文..." onkeyup="handleSearch()">
+            <input type="text" placeholder="搜尋景點、用戶或貼文..." onkeyup="handleSearch()">
         </div>
     </div>
-    
+
     <div class="filter-bar">
         <div class="filter-item active" onclick="changeFilter('all', this)">🔍 全部</div>
         <div class="filter-item" onclick="changeFilter('poi', this)">📸 景點</div>
-        <div class="filter-item" onclick="changeFilter('user', this)">👤 用戶</div>
-        <div class="filter-item" onclick="changeFilter('post', this)">📜 貼文</div>
+        <div class="filter-item" onclick="changeFilter('user', this)">👤 探險家</div>
+        <div class="filter-item" onclick="changeFilter('post', this)">📜 日誌</div>
     </div>
-    
+
     <div class="results-container" id="resultsList">
+        
         <div class="result-card poi-section">
             <div class="poi-result">
-                <img src="https://images.unsplash.com/photo-1552055944-13b6ee7cc203?w=200" class="poi-img">
+                <img src="https://images.unsplash.com/photo-1552055944-13b6ee7cc203?w=300" class="poi-img">
                 <div class="poi-info">
                     <a href="#" class="poi-title">台北 101 觀景台</a>
-                    <div class="poi-rating">⭐ 4.8 (2,450 評價) · 歷史地標</div>
-                    <div style="font-size:13px; color:#5f6368; margin-top:4px;">數位脈動強烈：高機率觸發稀有任務</div>
+                    <div class="poi-meta">⭐ 4.8 | 歷史地標<br>數位脈動強烈：建議攜帶 AI 掃描</div>
                 </div>
             </div>
         </div>
-    
+
         <div class="result-card user-section">
             <div class="user-result">
-                <div class="user-avatar" style="background-image: url('Gemini_Generated_Image_ucqy25ucqy25ucqy.png'); background-size: cover;"></div>
-                <div>
-                    <div class="user-name">神風特攻隊_隊長</div>
-                    <div style="font-size:12px; color:#70757a;">Lv. 42 冒險家 · 台北</div>
+                <div class="avatar-circle" style="background: #E1306C;">S</div>
+                <div class="user-details">
+                    <strong>神風特攻隊_隊長</strong>
+                    <small>Lv. 42 | 城市開拓者</small>
                 </div>
                 <button class="follow-btn">追蹤</button>
             </div>
         </div>
-    
-        <div class="result-card post-section">
-            <div style="font-size:12px; color:#70757a; margin-bottom:5px;">來自 @Alan_Travel 的冒險日誌</div>
-            <div class="post-result">
-                <img src="https://images.unsplash.com/photo-1513019002896-357733650a98?w=500" style="width:100%;">
-                <div class="post-content">
-                    今天在西門町發現了超隱藏的數位節點！XP 拿到手軟... #台北探險 #Traipeivel
-                </div>
+
+        <div class="result-card post-section" style="border: 1px solid #dadce0; border-radius: 12px; overflow: hidden;">
+            <img src="https://images.unsplash.com/photo-1513019002896-357733650a98?w=500" style="width: 100%; display: block;">
+            <div style="padding: 12px;">
+                <small style="color:#70757a;">@Alan 分享了冒險日誌</small>
+                <div style="font-size: 14px; margin-top: 5px;">西門町發現隱藏節點！經驗值翻倍中... #Traipeivel</div>
             </div>
         </div>
-    </div>
-    
-    <div class="g-logo">
-        <span class="blue">T</span><span class="red">r</span><span class="yellow">a</span><span class="blue">i</span><span class="green">p</span><span class="red">e</span>
-    </div>
-    
-    <div class="search-wrapper">
-        <span class="icon-left">🔍</span>
-        <input type="text" class="search-field" placeholder="搜尋隊友、地址或探險任務">
-    </div>
-    
-    <div style="margin-top:40px; display:flex; gap:10px;">
-        <button style="background:#f8f9fa; border:1px solid #f8f9fa; padding:10px 20px; border-radius:5px; color:#3c4043;">Traipeivel 搜尋</button>
-        <button style="background:#f8f9fa; border:1px solid #f8f9fa; padding:10px 20px; border-radius:5px; color:#3c4043;">手氣不錯</button>
-    </div>
-    
-    <div class="google-logo">
-        <span class="g-blue">T</span><span class="g-red">r</span><span class="g-yellow">a</span><span class="g-blue">i</span><span class="g-green">p</span><span class="g-red">e</span>
-    </div>
-    
-    <div class="g-search-box">
-        <span style="color:#9aa0a6; margin-right:10px;">🔍</span>
-        <input type="text" placeholder="在 Traipeivel 上搜尋隊友或地址" style="border:none; outline:none; width:100%; font-size:16px;">
-    </div>
-    
-    <div class="g-btn-group">
-        <button class="g-btn">Google 搜尋</button>
-        <button class="g-btn">好手氣</button>
-    </div>
-    <div class="header">🔍 搜尋用戶</div>
-    <div class="search-box">
-        <input type="text" placeholder="輸入用戶名稱..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
-        <h3 style="margin-top: 20px;">推薦隊友</h3>
-        <div class="user-card" onclick="location.href='message.html'">
-            <div class="avatar-circle" style="background: #ffcc00;">A</div>
-            <div><strong>Alan</strong><br><small>等級 12 | 萬華探險家</small></div>
+
+        <div class="result-card user-section">
+            <div class="user-result">
+                <div class="avatar-circle" style="background: #4caf50;">K</div>
+                <div class="user-details">
+                    <strong>Kamikaze_Rider</strong>
+                    <small>Lv. 8 | 北投達人</small>
+                </div>
+                <button class="follow-btn">追蹤</button>
+            </div>
         </div>
-        <div class="user-card">
-            <div class="avatar-circle" style="background: #4caf50;">K</div>
-            <div><strong>Kamikaze_Rider</strong><br><small>等級 8 | 北投達人</small></div>
-        </div>
+
     </div>
 
-    <nav class="nav">
-        <a href="index.html" class="nav-item">🏠 探索</a>
-        <a href="search.html" class="nav-item" style="color: #1a73e8; font-weight: bold;">🔍 找人</a>
-        <a href="message.html" class="nav-item">💬 訊息</a>
-        <a href="personality.html" class="nav-item">👤 個人</a>
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-link"><span>🏠</span>探索</a>
+        <a href="search.html" class="nav-link active"><span>🔍</span>搜尋</a>
+        <a href="message.html" class="nav-link"><span>💬</span>訊息</a>
+        <a href="personality.html" class="nav-link"><span>👤</span>個人</a>
     </nav>
 
     <script>
         function changeFilter(type, el) {
-            // 更新標籤樣式
             document.querySelectorAll('.filter-item').forEach(item => item.classList.remove('active'));
             el.classList.add('active');
-    
-            // 簡單的過濾邏輯
+
             const sections = {
                 'poi': document.querySelectorAll('.poi-section'),
                 'user': document.querySelectorAll('.user-section'),
                 'post': document.querySelectorAll('.post-section')
             };
-    
+
             if (type === 'all') {
                 Object.values(sections).forEach(group => group.forEach(s => s.style.display = 'block'));
             } else {
@@ -189,10 +168,10 @@
                 });
             }
         }
-    
+
         function handleSearch() {
-            // 4/11 展示說明：此處可介接搜尋 API，目前為靜態過濾模擬
-            console.log("正在檢索資料庫...");
+            // 此處可介接搜尋 API
+            console.log("正在檢索 Traipeivel 數據庫...");
         }
     </script>
 </body>

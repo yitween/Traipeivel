@@ -2,52 +2,133 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>個人主頁 - Traipeivel</title>
+    <title>個人探險日誌 - Traipeivel</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
-        .profile-card { background: white; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .avatar { width: 100px; height: 100px; background: #1a73e8; border-radius: 50%; margin: 0 auto 15px; line-height: 100px; color: white; font-size: 40px; }
-        .exp-container { margin: 20px 0; text-align: left; }
-        .exp-bar { background: #eee; height: 20px; border-radius: 10px; overflow: hidden; }
-        .exp-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.5s; }
-        .back-btn { margin-top: 20px; display: inline-block; color: #1a73e8; text-decoration: none; font-weight: bold; }
-        .achievement-list { text-align: left; margin-top: 20px; padding: 0; list-style: none; }
-        .achievement-list li { background: #e8f0fe; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 14px; }
+        :root { --primary: #1a73e8; --bg: #f8f9fa; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 80px; }
+        
+        /* 1. 登入/註冊 表單樣式 */
+        .auth-container { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 20px auto; }
+        .auth-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666; }
+        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: bold; }
+        .auth-form { display: none; flex-direction: column; gap: 12px; }
+        .auth-form.active { display: flex; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+
+        /* 2. 原有的 RPG 成就樣式 */
+        #profileContent { display: none; }
+        .profile-card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .avatar { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 10px; line-height: 80px; color: white; font-size: 30px; }
+        .exp-bar { background: #eee; height: 15px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .exp-fill { background: #4caf50; height: 100%; width: 0%; transition: 0.5s; }
+
+        /* 3. 導覽列 (與 index 一致) */
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; }
+        .nav-item { flex: 1; text-align: center; padding: 15px; text-decoration: none; color: #666; font-size: 14px; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="profile-card">
-        <div class="avatar">神</div>
-        <h2>神風特攻隊</h2>
-        <p>等級：<span id="displayLvl">1</span> (台北探險家)</p>
-
-        <div class="exp-container">
-            <p>經驗值進度：<span id="displayExp">0</span> / 100</p>
-            <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
+    <div id="authBox" class="auth-container">
+        <div class="auth-tabs">
+            <div class="tab active" onclick="switchAuth('login', this)">登入</div>
+            <div class="tab" onclick="switchAuth('register', this)">註冊</div>
         </div>
 
-        <h3>數位脈動成就</h3>
-        <ul class="achievement-list">
-            <li>✅ 成功串接 OpenFreeMap 定位系統</li>
-            <li>✅ 啟動動態天氣感知引擎</li>
-            <li>✅ 串接 Gemini AI 建議邏輯</li>
-        </ul>
+        <form id="loginForm" class="auth-form active" onsubmit="handleAuth(event, 'login')">
+            <input type="email" placeholder="電子郵件" required>
+            <input type="password" placeholder="密碼" required>
+            <button type="submit" class="btn-submit">立即登入</button>
+        </form>
 
-        <a href="index.html" class="back-btn">⬅️ 返回探險地圖</a>
+        <form id="registerForm" class="auth-form" onsubmit="handleAuth(event, 'register')">
+            <input type="text" placeholder="探險家暱稱" required>
+            <input type="email" placeholder="電子郵件" required>
+            <input type="password" placeholder="設定密碼" required>
+            <button type="submit" class="btn-submit">建立帳號</button>
+        </form>
     </div>
 
-    <script>
-        // 讀取 localStorage 保持資料同步
-        window.onload = function() {
-            let exp = parseInt(localStorage.getItem('userExp') || "0");
-            let level = Math.floor(exp / 100) + 1;
-            let currentLevelExp = exp % 100;
+    <div id="profileContent">
+        <div class="profile-card">
+            <div class="avatar" id="userInitial">神</div>
+            <h2 id="userNameDisplay">神風特攻隊</h2>
+            <p>等級：<span id="lvl">1</span> | 經驗值：<span id="exp">0</span>/100</p>
+            <div class="exp-bar"><div id="expFill" class="exp-fill"></div></div>
+            <button onclick="logout()" style="margin-top: 15px; background: none; border: 1px solid #ccc; padding: 5px 15px; border-radius: 5px; cursor: pointer;">登出帳號</button>
+        </div>
+        
+        <div class="profile-card" style="margin-top: 15px; text-align: left;">
+            <h3>數位脈動成就</h3>
+            <ul style="padding-left: 20px; font-size: 14px; color: #555;">
+                <li>📍 成功串接 OpenFreeMap 定位系統</li>
+                <li>🌦️ 啟動動態天氣感知引擎</li>
+                <li>🤖 整合 Gemini AI 顧問欄位</li>
+            </ul>
+        </div>
+    </div>
 
-            document.getElementById('displayLvl').innerText = level;
-            document.getElementById('displayExp').innerText = currentLevelExp;
-            document.getElementById('expFill').style.width = currentLevelExp + "%";
-        };
+    <nav class="nav">
+        <a href="index.html" class="nav-item">🏠 探索</a>
+        <a href="search.html" class="nav-item">🔍 找人</a>
+        <a href="message.html" class="nav-item">💬 訊息</a>
+        <a href="personality.html" class="nav-item active">👤 個人</a>
+    </nav>
+
+    <script>
+        // 1. 切換 登入/註冊 分頁
+        function switchAuth(type, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(type + 'Form').classList.add('active');
+        }
+
+        // 2. 處理 登入/註冊 邏輯
+        function handleAuth(event, type) {
+            event.preventDefault();
+            // 4/11 展示時說明：此處未來會介接 Firebase Auth 或 自建 API
+            const name = type === 'register' ? event.target.elements[0].value : "探險家";
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', name);
+            checkLoginStatus();
+            alert(type === 'login' ? "歡迎回來！" : "註冊成功，開始你的探險吧！");
+        }
+
+        // 3. 檢查登入狀態並更新 UI
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const authBox = document.getElementById('authBox');
+            const profileContent = document.getElementById('profileContent');
+
+            if (isLoggedIn) {
+                authBox.style.display = 'none';
+                profileContent.style.display = 'block';
+                
+                // 更新資料
+                const name = localStorage.getItem('userName') || "神風特攻隊";
+                document.getElementById('userNameDisplay').innerText = name;
+                document.getElementById('userInitial').innerText = name.charAt(0);
+                
+                let totalExp = parseInt(localStorage.getItem('userExp') || "0");
+                document.getElementById('lvl').innerText = Math.floor(totalExp / 100) + 1;
+                document.getElementById('exp').innerText = totalExp % 100;
+                document.getElementById('expFill').style.width = (totalExp % 100) + "%";
+            } else {
+                authBox.style.display = 'block';
+                profileContent.style.display = 'none';
+            }
+        }
+
+        function logout() {
+            localStorage.setItem('isLoggedIn', 'false');
+            checkLoginStatus();
+        }
+
+        window.onload = checkLoginStatus;
     </script>
 </body>
 </html>
